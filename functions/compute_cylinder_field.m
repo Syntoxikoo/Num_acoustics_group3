@@ -79,17 +79,24 @@ secbess = 0;
 for ii = 1:M
     secbess = secbess + (1j^(ii) *cos(ii * the).* besselj(ii, k*r)); % Computing the series expansion of the Bessel function
 end
-p_i = p0 .* (besselj(0,k*r)+ 2 * secbess) .* exp(-1j*2*pi*f*t); % Computing full insident pressure field
-
+p_i = p0 .* (besselj(0,k*r)+ 2 * secbess); % Computing full insident pressure field
+if length(t)>1
+    
+    p_tmp = zeros(size(p_i,1),size(p_i,2),length(t));
+    for ii = 1: length(t)
+        p_tmp(:,:,ii) = p_i.* exp(-1j*2*pi*f*t(ii));
+    end
+    p_i = p_tmp;
+end
 % Computing pressure field for the scattered wave
 p_s = 0;
 for ii = 0:M
     if ii < 1
         eps_m =1;
-        gamma_m = atan(-(besselj(1,k*a)./bessely(1,k*a))); % Computing the phase angle
+        gamma_m = atan(-besselj(1,k*a)/bessely(1,k*a)); % Computing the phase angle
     else
         eps_m = 2;
-        gamma_m = atan((besselj(ii-1,k*a)-besselj(ii+1,k*a))./(bessely(ii+1, k*a)- bessely(ii-1,k*a))); 
+        gamma_m = atan((besselj(ii-1,k*a)-besselj(ii+1,k*a))/(bessely(ii+1, k*a)- bessely(ii-1,k*a))); 
     end
     
     A_m = -eps_m*p0* 1j^(ii+1)*exp(-1j *gamma_m) * sin(gamma_m); % Computing the amplitude of the scattered wave
@@ -103,8 +110,14 @@ for ii = 0:M
 
     p_s = p_s+ (A_m *cos(ii * the).*( besselj(ii, k*r)+1j * bessely(ii,k*r)));
 end
-p_s = p_s.* exp(-1j*2*pi*f*t);
-mask = find(r<a-1e-6);
+if length(t)>1
+    p_tmp = zeros(size(p_s,1),size(p_s,2),length(t));
+    for ii = 1: length(t)
+        p_tmp(:,:,ii) = p_s.* exp(-1j*2*pi*f*t(ii));
+    end
+    p_s = p_tmp;
+end
+mask = find(r <= a);
 p_i(mask) = NaN;
 p_s(mask) = NaN;
 end
