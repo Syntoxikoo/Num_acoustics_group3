@@ -1,5 +1,6 @@
 %% Exrcise 3 1)
 clear;
+addpath(genpath('functions'));
 
 a=1;
 b=4;
@@ -14,6 +15,7 @@ Igauss=gauss(f,a,b,n);
 
 %% 2)
 clear;
+addpath(genpath('functions'));
 
 a=1;
 b=4;
@@ -43,6 +45,7 @@ legend('ILR','Itrap','Isimp','Igauss');
 
 %% 3)
 clear;
+addpath(genpath('functions'));
 
 a=0;
 b=1;
