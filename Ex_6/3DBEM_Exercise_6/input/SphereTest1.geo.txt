@@ -1,0 +1,54 @@
+% Sphere centered on the origin
+
+Rad = 1;
+lc = Rad/4;
+
+// Points at origin and 6 on the surface:
+Point(1) = {0,0,0,lc};
+Point(2) = {Rad,0,0,lc};
+Point(3) = {0,Rad,0,lc};
+Point(4) = {-Rad,0,0,lc};
+Point(5) = {0,-Rad,0,lc};
+Point(6) = {0,0,Rad,lc};
+Point(7) = {0,0,-Rad,lc};
+
+// Arcs connecting points:
+Circle(23) = {2,1,3};
+Circle(34) = {3,1,4};
+Circle(45) = {4,1,5};
+Circle(52) = {5,1,2};
+
+Circle(62) = {6,1,2};
+Circle(63) = {6,1,3};
+Circle(64) = {6,1,4};
+Circle(65) = {6,1,5};
+
+Circle(72) = {7,1,2};
+Circle(73) = {7,1,3};
+Circle(74) = {7,1,4};
+Circle(75) = {7,1,5};
+
+// The 8 sub-surfaces:
+Line Loop(101) = {-23,-62,63};
+Line Loop(102) = {-34,-63,64};
+Line Loop(103) = {-45,-64,65};
+Line Loop(104) = {-52,-65,62};
+
+Line Loop(105) = {23,-73,72};
+Line Loop(106) = {34,-74,73};
+Line Loop(107) = {45,-75,74};
+Line Loop(108) = {52,-72,75};
+
+// Define surfaces as curved:
+Ruled Surface(111) = {101}In Sphere {1};
+Ruled Surface(112) = {102}In Sphere {1};
+Ruled Surface(113) = {103}In Sphere {1};
+Ruled Surface(114) = {104}In Sphere {1};
+
+Ruled Surface(115) = {105}In Sphere {1};
+Ruled Surface(116) = {106}In Sphere {1};
+Ruled Surface(117) = {107}In Sphere {1};
+Ruled Surface(118) = {108}In Sphere {1};
+
+Mesh.ElementOrder=(1);
+

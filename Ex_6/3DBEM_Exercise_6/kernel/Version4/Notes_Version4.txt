@@ -1,0 +1,24 @@
+Version 3 (2007):
+
+This version has a full implementation of the treatment of near-singular integrals.
+
+-Covers nodes and field points.
+
+-The refinement is made anywhere on the element, where the projection of the close point is.
+
+-This is applied only to the singular part (frequency independent) of the integral. The remainder is treated normally. This would allow obtaining (reprogramming TriQuadEquat and point) the frequncy-independent, near-singular part of the matrices separately.
+
+-The innovations are in the nsingcheck, to find the projection, and nsing2dQUAD and nsing2dTRI to subdivide the element's integretion points.
+
+
+Version 4 (12-2010):
+
+-"nsingchek" is reduced to a simple pre-check. This saves time for the well-behaver integrals (intF3).
+
+-"nsing2dQUAD" and "nsing2dTRIA" are rewritten. The distance from the calculation point is calculated for every subelement, by using a light version of elemshape. This eliminates the need for a complicated distance check and the use of the Matlab function "Fminsearch". This incleases speed and improves compatibility for Matlab clones.
+
+-"elemshape" and "elemshapetri" will disable normal vector calculations, not needed when used in element subdivision, when they arew not requested. They remain backward compatible.
+
+-There is a reduction in calculation time for no near-singular problems. Tests with "test_spheres2" show around 10% reduction with QUAD elements and 50% reduction with TRI elements.
+
+-There is a reduction in calculation time for near-singular problems with the TRI elements of about 50%. For QUAD elements, the calculation time is almost the same.

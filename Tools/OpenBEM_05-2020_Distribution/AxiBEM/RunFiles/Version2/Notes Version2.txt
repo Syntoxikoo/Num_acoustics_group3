@@ -1,0 +1,10 @@
+
+The changes from version 1 are related to the near singular integration. 
+
+In version 2 this is done using a new version of "nsingrule", which uses a recursive technique to subdivide the element. 
+
+The element division does not need now a pre-calculation of the distance element-point and the point projection on the element, because it calculates the distance point-subelement for every subdivision. 
+
+This adds about 5-10% calculation time as compared to version 1, but it is expected to be advantageous when the singular integrals are treated. In this version, singular integrals are dealt with by a deeper subdivision using the same "nsingrule".
+
+On the other hand, the results for near-singular points are more accurate in version 2 than in version 1, due to a more consistent subdivision.

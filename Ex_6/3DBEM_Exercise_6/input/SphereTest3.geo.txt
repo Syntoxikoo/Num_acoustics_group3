@@ -1,0 +1,105 @@
+// Sphere above rectangular object (on reflecting plane)
+
+Rad = 1;
+Hgt = 2;  
+lc = Rad/3;
+
+// SPEHRE
+
+// Points at origin and 6 on the surface:
+Point(1) = {0,0,Hgt,lc};
+Point(2) = {Rad,0,Hgt,lc};
+Point(3) = {0,Rad,Hgt,lc};
+Point(4) = {-Rad,0,Hgt,lc};
+Point(5) = {0,-Rad,Hgt,lc};
+Point(6) = {0,0,Rad+Hgt,lc};
+Point(7) = {0,0,-Rad+Hgt,lc};
+
+// Arcs connecting points:
+Circle(23) = {2,1,3};
+Circle(34) = {3,1,4};
+Circle(45) = {4,1,5};
+Circle(52) = {5,1,2};
+
+Circle(62) = {6,1,2};
+Circle(63) = {6,1,3};
+Circle(64) = {6,1,4};
+Circle(65) = {6,1,5};
+
+Circle(72) = {7,1,2};
+Circle(73) = {7,1,3};
+Circle(74) = {7,1,4};
+Circle(75) = {7,1,5};
+
+// The 8 sub-surfaces:
+Line Loop(101) = {-23,-62,63};
+Line Loop(102) = {-34,-63,64};
+Line Loop(103) = {-45,-64,65};
+Line Loop(104) = {-52,-65,62};
+
+Line Loop(105) = {23,-73,72};
+Line Loop(106) = {34,-74,73};
+Line Loop(107) = {45,-75,74};
+Line Loop(108) = {52,-72,75};
+
+// Define surfaces as curved:
+Ruled Surface(111) = {101}In Sphere {1};
+Ruled Surface(112) = {102}In Sphere {1};
+Ruled Surface(113) = {103}In Sphere {1};
+Ruled Surface(114) = {104}In Sphere {1};
+
+Ruled Surface(115) = {105}In Sphere {1};
+Ruled Surface(116) = {106}In Sphere {1};
+Ruled Surface(117) = {107}In Sphere {1};
+Ruled Surface(118) = {108}In Sphere {1};
+
+
+// RECTANGLE
+Lx=5;
+Ly=4;
+Lz=0.1;
+lc = Ly/6;
+
+
+// Points:
+Point(201) = {Lx/2,Ly/2,Lz,lc};
+Point(202) = {-Lx/2,Ly/2,Lz,lc};
+Point(203) = {-Lx/2,-Ly/2,Lz,lc};
+Point(204) = {Lx/2,-Ly/2,Lz,lc};
+Point(205) = {Lx/2,Ly/2,0,lc};
+Point(206) = {-Lx/2,Ly/2,0,lc};
+Point(207) = {-Lx/2,-Ly/2,0,lc};
+Point(208) = {Lx/2,-Ly/2,0,lc};
+
+// Lines connecting points:
+Line(221) = {201,202};
+Line(222) = {202,203};
+Line(223) = {203,204};
+Line(224) = {204,201};
+Line(225) = {205,206};
+Line(226) = {206,207};
+Line(227) = {207,208};
+Line(228) = {208,205};
+Line(229) = {201,205};
+Line(230) = {202,206};
+Line(231) = {203,207};
+Line(232) = {204,208};
+
+// Six faces:
+Line Loop(251) = {221,222,223,224};
+Line Loop(252) = {225,226,227,228};
+Line Loop(253) = {-229,221,230,-225};
+Line Loop(254) = {-230,222,231,-226};
+Line Loop(255) = {-231,223,232,-227};
+Line Loop(256) = {-232,224,229,-228};
+
+Plane Surface(261) = {251};
+Plane Surface(262) = {252};
+Plane Surface(263) = {253};
+Plane Surface(264) = {254};
+Plane Surface(265) = {255};
+Plane Surface(266) = {256};
+
+
+Mesh.ElementOrder=(1);
+
