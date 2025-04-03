@@ -51,6 +51,8 @@ npoints=length(xq);
 nlaguerre=15;
 [t,w]=laguerre(nlaguerre,-0.5);  % basepoints(t) and weights(w) in Laguerre Quadrature
 
+
+
 R1=sqrt((xq-pxyb(1)).^2+(yq-pxyb(2)).^2); % Distances from IPs to collocation/source point
 
 R2=sqrt((xq-pxyb(1)).^2+(yq+pxyb(2)).^2); % Distances from IPs to image collocation/source point
@@ -92,7 +94,7 @@ else % Plane with finite impedance
 
    if betaP==1
      	cons=betaP*exp(i*ro)./(pi*sqrt(ro));
-     	pgamma=-(cons.*w.')*f;
+     	pgamma=-(cons.*w).*f;
    
       if (imag(betaP)<0)&(real(a)>0)
         	ps=-betaP*exp(-i*ro*(1-a))/sqrt(1-betaP^2);
@@ -116,7 +118,7 @@ else % Plane with finite impedance
     	cons=(i*k*betaP*exp(i*ro)./(pi*sqrt(ro))).*sqrt(1-gamma(1,:).^2).*sign(xq.'-pxyb(1));
    
       f2=-(gamma+betaP.*(1+i*points))./(sqrt(points-i*2).*(points.^2-i*2*(1+betaP*gamma).*points-(betaP+gamma).^2));
-  	   dpgamma=(cons.*w.')*f2;   
+  	   dpgamma=(cons.*w).*f2;   
      
   	   if (imag(betaP)<0)&(real(a)<0)
      	   dps=i*k*betaP*sign(xq.'-pxyb(1)).*exp(i*ro.*(1-a(1,:)));

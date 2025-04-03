@@ -24,6 +24,7 @@ Me = [2,1;1,2]*h/6;
 
 % Step 3: Assembling
 I = eye(2,2);
+
 K = zeros(nnt,nnt); 
 M = zeros(nnt,nnt);
 for ie=1: ne

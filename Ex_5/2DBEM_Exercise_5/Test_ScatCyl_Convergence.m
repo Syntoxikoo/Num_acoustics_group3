@@ -1,7 +1,6 @@
 
 % Example of calculation: Infinite cylinder in free field
 % CONVERGENCE TEST
-
 clear
 
 % PREPROCESSING
@@ -59,8 +58,9 @@ title(['Convergence of BEM solution - k: ' num2str(k)])
 xlabel('Number of elements'); ylabel('Relative error')
 grid
 
+%%
 
-load("Exercice_5/2DBEM_Exercise_5/k_fail.mat");
+load("Ex_5/2DBEM_Exercise_5/k_fail.mat");
 
 % Define numbers of elements per segment to be tried
 NelT = round(logspace(1,2,10)/2);
@@ -69,6 +69,7 @@ CylError=ones(length(NelT),1);
 for nn=1:length(NelT)
     
     Nel = NelT(nn); % Total number of elements /4
+
     
     % define geometry of the object
     Rc=1; % Radius of the cylinder
@@ -105,14 +106,14 @@ title(['Convergence of BEM solution - k: ' num2str(k)])
 xlabel('Number of elements'); ylabel('Relative error')
 grid
 
-
+%%
 % Define numbers of elements per segment to be tried
 NelT = round(logspace(1,2,10)/2);
 
 ChiefPoint = [0.5,-0.2 ; -0.35,0.74];
 
-xCh = rand([4,1],"double");
-yCh = rand([4,1],"double");
+xCh = -1 + 2* rand([4,1],"double");
+yCh = -1+2*rand([4,1],"double");
 ChiefPoint = [xCh,yCh];
 
 CylError2=ones(length(NelT),1);
@@ -159,3 +160,6 @@ title(['Convergence of BEM solution - k: ' num2str(k)])
 xlabel('Number of elements'); ylabel('Relative error')
 legend("With chief", "without chief")
 grid
+
+
+%% observe interior problem

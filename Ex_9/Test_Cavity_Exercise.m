@@ -2,7 +2,7 @@
 
 clear
 
-% PREPROCESSING
+% ------------------------ PREPROCESSING ---------------------------
 
 % Ambient conditions
 pa = 101325;         % Static pressure (Pa)
@@ -17,11 +17,12 @@ ly=1.2; % Width
 ff=1; % (ff is the frequency count when a loop is used)
 
 % frequency and wavenumber
+
 % TASK 1: calculate the lowest cavity resonance frequencies analytically
-m=2;n=3;
-fr=550; % ?????????????????
+m=1;n=1;
+fr = c/2 *sqrt( (m/lx)^2 + (n/ly)^2);
 k=2*pi*fr/c;
-% TASK 2: Adjust the calculation as close as possible to a resonance. How high the pressure can be?
+
 
 % number of elements per wavelength
 el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
@@ -37,6 +38,8 @@ betaP=betag(sigmaP,fr);
 % sigmaS=Inf; % Flow resistivity
 % betaS=betag(sigmaS,fr)/(rho*c); % de-normalized admittance, as needed to solve the system and domain points
 
+% betaS=1/(rho*c); % -> give a free space approx
+% betaS=1000; % -> pressure low at the boundary
 betaS=0; % Force hard surface, betaS=0
 
 % define geometry of the object
@@ -57,7 +60,7 @@ topology(:,end)=-topology(:,end);
 % TASK 3: Move the source position over nodal lines. What happens?
 
 % Line source position
-position=[0.08 0.08];
+position=[1.01 1.01];
 
 % obtain incident pressure
 [G0dir,G0ref,dG0dirdR1,dG0refdR2,Pbeta,dPbetadx,dPbetady]=greendef(k(ff),position,betaP(ff),xyb(:,1),xyb(:,2));
@@ -107,3 +110,26 @@ xlabel('x (m)');
 ylabel('y (m)');
 title(['Sund pressure (Pa) - Frequency = ' num2str(fr(ff)) ' Hz']);
 axis equal
+
+
+%% cond a
+
+fr = 5:5:500;
+k=2*pi*fr/c;
+C = zeros(length(fr),1);
+nx = 0:10;
+ny = 0:10;
+[n,m] = meshgrid(nx,ny);
+n = n(:);
+m = m(:);
+fr_a = c/2 *sqrt((n/lx).^2 + (m/ly).^2);
+% Calculate coefficient matrix
+for ff = 1:length(fr)
+    [A,B]=bem2d(xyb,topology,k(ff),betaP);
+    C(ff) = cond(A);
+end
+
+figure;
+plot(fr,C)
+xline(fr_a,'--')
+xlim([min(fr) max(fr)])

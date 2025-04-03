@@ -6,7 +6,7 @@ clear
 
 % Ambient conditions
 pa = 101325;         % Static pressure (Pa)
-t = 20;              % Temperature (ºC)
+t = 20;              % Temperature (ï¿½C)
 Hr = 50;             % Relative humidity (%)
 [rho,c,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
 
@@ -20,8 +20,10 @@ espac=1/el_wl;       % Spacing of field points
 
 % admittance of the barrier by segments
 sigmaB=[Inf Inf Inf Inf]; % Reflecting barrier  <<<<< UPDATE IF MORE SEGMENTS ARE INTRODUCED IN THE GEOMETRY 
+
 betaBs=betag(sigmaB,fr)/(rho*c); % de-normalized admittance, as needed to solve the system and domain points
-%betaBs=1/(rho*c)*ones(1,4); % set this, for example, to have a barrier impedance of rho*c
+
+% betaBs=1/(rho*c)*ones(1,4); % set this, for example, to have a barrier impedance of rho*c
 
 % Corresponding normal plane wave absorption and reflection index:
 alfa=4*real(1./betaBs)./(((abs(1./betaBs)).^2)/rho/c + 2*real(1./betaBs) + rho*c);
@@ -30,13 +32,14 @@ R=((1./betaBs)-rho*c)./((1./betaBs)+rho*c);
 % dimensions of the barrier
 Bhgt=3; % barrier heigth
 Bwdt=0.2;   % barrier width
-bar=[-Bwdt/2 0;...
-     -Bwdt/2 Bhgt;...
+bar=[-Bwdt 0;...
+     -Bwdt Bhgt;...
       Bwdt/2 Bhgt;...
       Bwdt/2 0];
 % barrier top
-topsegs=[bar(2,:) bar(3,:) ceil(sqrt(sum((bar(2,:)-bar(3,:)).^2))*el_wl) 0 0];
-% topsegs=[bar(2,:) bar(3,:) 10 0.5*Bwdt+eps 0];   % Example another top
+topsegs=[bar(2,:) bar(3,:) ceil(sqrt(sum((bar(2,:)-bar(3,:)).^2))*el_wl) 0 0]; % node 1 - node 2 - nbr of elements 
+
+% topsegs=[bar(2,:) bar(3,:) 10 (0.5*Bwdt+eps) 0];   % Example another top
 
 % TASK: Change the design of the barrier top (topsegs) and observe the result. Did
 % you manage to improve the performance of the barrier?
@@ -68,7 +71,7 @@ xyb_chief=[linspace(-Bwdt*0.2,Bwdt*0.3,10)' linspace(Bhgt*0.09,Bhgt*0.88,10)' -o
 hold on;plot(xyb_chief(:,1),xyb_chief(:,2),'md')
 
 % CALCULATION
-
+eps
 % obtain incident pressure on the mesh nodes and on the CHIEF points
 [G0dir,G0ref,dG0dirdR1,dG0refdR2,Pbeta,dPbetadx,dPbetady]=greendef(k(ff),position,betaPs(ff),... %xybndB(:,1),xybndB(:,2));
     [xybndB(:,1); xyb_chief(:,1)],[xybndB(:,2); xyb_chief(:,2)]);
@@ -79,7 +82,7 @@ inc_pressure=i/4*(G0dir+G0ref)+Pbeta;
 
 % solve system
 RHS=[-2*pi*inc_pressure]; % Right-Hand-Side of the system
-pB=(Ab+j*k*rho*c*Bb*diag(admittB(xynodumB)))\RHS;
+pB=(Ab+1j*k*rho*c*Bb*diag(admittB(xynodumB)))\RHS;
 
 % obtain incident pressure on the field points
 [G0dir,G0ref,dG0dirdR1,dG0refdR2,Pbeta,dPbetadx,dPbetady]=greendef(k(ff),position,betaPs(ff),xy(:,1),xy(:,2));
@@ -107,13 +110,16 @@ SPLff=20*log10(abs(pfield./pIfield.'));
 % plot the result on the field points
 figure;
 subplot(2,1,1);
-plotfpoints(XX,YY,SPL(pfield));
+
+plotfpoints(XX,YY,SPL(pfield)); hold on
+plot(xybndB(:,1), xybndB(:,2),LineWidth=2)
 xlabel('Distance (m)');
 ylabel('Height (m)');
 title(['SPL (dB) - Frequency = ' num2str(fr(ff)) ' Hz']);
 axis equal
 subplot(2,1,2);
-plotfpoints(XX,YY,SPLff);
+plotfpoints(XX,YY,SPLff); hold on
+plot(xybndB(:,1), xybndB(:,2),LineWidth=2)
 xlabel('Distance (m)');
 ylabel('Height (m)');
 title(['SPL rel. free field (dB) - Frequency = ' num2str(fr(ff)) ' Hz']);

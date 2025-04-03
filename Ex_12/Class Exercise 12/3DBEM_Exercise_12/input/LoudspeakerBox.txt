@@ -1,0 +1,118 @@
+// Simple closed loudspeaker box. Available at AT-DTU.
+
+
+//Dimensions (cm)
+lx = 0.135; // Box dimensions (rectangular)
+ly = 0.2;
+lz = 0.22;
+Rd = 0.05;  // Radius of the diaphragm, assumed centered on the front face (y-z plane) of te box
+Rc = 0.015; // Radius of dust cap
+Dz = 0.03;  // Depth at the dust cap rim
+Dc = 0.02;  // Depth at the dust cap top
+Rcd= (Rc^2 + (Dz-Dc)^2)/(2*(Dz-Dc)); // Curvature radius of the dust cap 
+
+lc1 = lx/6;  // Mesh density 1
+lc2 = Rd/2; // Mesh density 2
+lc3 = Rc/2; // Mesh density 2
+
+
+// Box:
+Point(1001) = {0,0,0,lc1};
+Point(1002) = {0,ly,0,lc1};
+Point(1003) = {0,ly,lz,lc1};
+Point(1004) = {0,0,lz,lc1};
+Point(1005) = {-lx,0,0,lc1};
+Point(1006) = {-lx,ly,0,lc1};
+Point(1007) = {-lx,ly,lz,lc1};
+Point(1008) = {-lx,0,lz,lc1};
+
+Line(1011)  = {1001,1002};
+Line(1012)  = {1002,1003};
+Line(1013)  = {1003,1004};
+Line(1014)  = {1004,1001};
+Line(1015)  = {1005,1006};
+Line(1016)  = {1006,1007};
+Line(1017)  = {1007,1008};
+Line(1018)  = {1008,1005};
+Line(1019)  = {1001,1005};
+Line(1020)  = {1002,1006};
+Line(1021)  = {1003,1007};
+Line(1022)  = {1004,1008};
+
+Line Loop(1025) = {1015,1016,1017,1018};
+Plane Surface(1026) = {1025};
+Line Loop(1027) = {1012,1021,-1016,-1020};
+Plane Surface(1028) = {1027};
+Line Loop(1029) = {1013,1022,-1017,-1021};
+Plane Surface(1030) = {1029};
+Line Loop(1031) = {1014,1019,-1018,-1022};
+Plane Surface(1032) = {1031};
+Line Loop(1033) = {1011,1020,-1015,-1019};
+Plane Surface(1034) = {1033};
+
+
+
+// Outer diaphragm rim:
+Rdo=Rd*1.05;
+Point(1140) = {0,ly/2,lz/2,lc2};
+Point(1141) = {0,ly/2+Rdo,lz/2,lc2};
+Point(1142) = {0,ly/2,lz/2+Rdo,lc2};
+Point(1143) = {0,ly/2-Rdo,lz/2,lc2};
+Point(1144) = {0,ly/2,lz/2-Rdo,lc2};
+Circle(1146) = {1141,1140,1142};
+Circle(1147) = {1142,1140,1143};
+Circle(1148) = {1143,1140,1144};
+Circle(1149) = {1144,1140,1141};
+
+
+// Inner Diaphragm rim:
+Point(1040) = {0,ly/2,lz/2,lc2};
+Point(1041) = {0,ly/2+Rd,lz/2,lc2};
+Point(1042) = {0,ly/2,lz/2+Rd,lc2};
+Point(1043) = {0,ly/2-Rd,lz/2,lc2};
+Point(1044) = {0,ly/2,lz/2-Rd,lc2};
+Circle(1046) = {1041,1040,1042};
+Circle(1047) = {1042,1040,1043};
+Circle(1048) = {1043,1040,1044};
+Circle(1049) = {1044,1040,1041};
+
+Line Loop(1050) = {1011,1012,1013,1014,-1146,-1147,-1148,-1149};
+Plane Surface(1051) = {1050};
+
+Line Loop(1052) = {-1046,-1047,-1048,-1049,-1146,-1147,-1148,-1149};
+Plane Surface(1053) = {1052};
+
+// Dust cap rim:
+Point(1060) = {-Dz,ly/2,lz/2,lc3};
+Point(1061) = {-Dz,ly/2+Rc,lz/2,lc3};
+Point(1062) = {-Dz,ly/2,lz/2+Rc,lc3};
+Point(1063) = {-Dz,ly/2-Rc,lz/2,lc3};
+Point(1064) = {-Dz,ly/2,lz/2-Rc,lc3};
+Circle(1066) = {1061,1060,1062};
+Circle(1067) = {1062,1060,1063};
+Circle(1068) = {1063,1060,1064};
+Circle(1069) = {1064,1060,1061};
+
+
+//Diaphragm surface:
+Line(1071)  = {1041,1061};
+Line(1072)  = {1042,1062};
+Line(1073)  = {1043,1063};
+Line(1074)  = {1044,1064};
+Line Loop(1075) = {1046,1072,-1066,-1071};
+Line Loop(1076) = {1047,1073,-1067,-1072};
+Line Loop(1077) = {1048,1074,-1068,-1073};
+Line Loop(1078) = {1049,1071,-1069,-1074};
+Ruled Surface(1079) = {1075};
+Ruled Surface(1080) = {1076};
+Ruled Surface(1081) = {1077};
+Ruled Surface(1082) = {1078};
+
+
+// Dust cap surface:
+Point(1090) = {-Dc-Rcd,ly/2,lz/2,lc3}; // curvature centre
+Line Loop(1091) = {1066,1067,1068,1069};
+Ruled Surface(1092) = {1091} In Sphere{1090};
+
+
+

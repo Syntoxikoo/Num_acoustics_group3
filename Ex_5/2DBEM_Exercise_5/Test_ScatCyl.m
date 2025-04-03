@@ -13,6 +13,7 @@ c=344;
 k = linspace(5.52,5.5202,100);
 C = zeros(length(k),1);
 for ii= 1: length(k)
+    disp("processing :"+ii +"/"+length(k))
     fr = k(ii)*c/(2*pi);
     % fr=150; ff=1; % (ff is the frequency count when a loop is used)
     
@@ -47,14 +48,13 @@ plot(k,C)
 [~,idxk]= max(C);
 
 k = k(idxk);
-save('Exercice_5/2DBEM_Exercise_5/k_fail.mat', 'k')
+save('Ex_5/2DBEM_Exercise_5/k_fail.mat', 'k')
 %%
 % CALCULATION
 
 
 
 fr = k*c/(2*pi);
-
 
 
 % number of elements per wavelength
@@ -104,7 +104,7 @@ pfield=(Ap*ps./CConst+pIfield).';
 % plot the pressure on the surface
 figure;
 plot(1:length(ps),abs(ps),'ko--',1:length(pAna),abs(pAna).','kx-');
-title(['Scattering by a cylinder - Frequency = ' num2str(fr(ff)) ' Hz']);
+title(['Scattering by a cylinder - Frequency = ' num2str(fr) ' Hz']);
 xlabel('Nodes on the surface');ylabel('Pressure modulus (Pa)')
 legend('BEM','Analytical')
 grid;
@@ -169,7 +169,7 @@ grid;
 % 
 %% With chief point
 
-load("Exercice_5/2DBEM_Exercise_5/k_fail.mat")
+load("Ex_5/2DBEM_Exercise_5/k_fail.mat")
 c = 343;
 fr = k*c/(2*pi);
 
@@ -188,6 +188,8 @@ segments=[-Rc 0 0 Rc ceil(pi/2*Rc*el_wl) Rc 0;...
 [xyb,topology]=nodegen(segments,'y'); 
 % obtain incident pressure
 ChiefPoint = [0.5,-0.2];
+figure(gcf);hold on;
+plot(ChiefPoint(1),ChiefPoint(2),'x')
 inc_pressure=exp(1j*k*xyb(:,1));
 pIch=exp(1j*k*ChiefPoint(1));
 % calculate coefficient matrix
@@ -228,11 +230,11 @@ pfield=(Ap*ps./CConst+pIfield).';
 % plot the pressure on the surface
 figure;
 plot(1:length(ps),abs(ps),'ko--',1:length(pAna),abs(pAna).','kx-');
-title(['Scattering by a cylinder - Frequency = ' num2str(fr) ' Hz']);
+title(['Scattering by a cylinder (using Chief points) - Frequency = ' num2str(fr) ' Hz']);
 xlabel('Nodes on the surface');ylabel('Pressure modulus (Pa)')
 legend('BEM','Analytical')
 grid;
 
 
 %%
-save('Exercice_5/2DBEM_Exercise_5/ps_Chief.m', 'ps')
+save('Ex_5/2DBEM_Exercise_5/ps_Chief.mat', 'ps')

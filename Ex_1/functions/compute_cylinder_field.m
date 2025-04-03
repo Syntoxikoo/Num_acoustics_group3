@@ -82,7 +82,6 @@ for ii = 1:M
 end
 p_i = p0 .* (besselj(0,k*r)+ 2 * secbess); % Computing full insident pressure field
 if length(t)>1
-    
     p_tmp = zeros(size(p_i,1),size(p_i,2),length(t));
     for ii = 1: length(t)
         p_tmp(:,:,ii) = p_i.* exp(-1j*2*pi*f*t(ii));
@@ -111,6 +110,7 @@ for ii = 0:M
 
     p_s = p_s+ (A_m *cos(ii * the).*( besselj(ii, k*r)+1j * bessely(ii,k*r)));
 end
+
 if length(t)>1
     p_tmp = zeros(size(p_s,1),size(p_s,2),length(t));
     for ii = 1: length(t)
