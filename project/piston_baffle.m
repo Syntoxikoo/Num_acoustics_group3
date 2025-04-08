@@ -158,7 +158,7 @@ for i = 1:length(fr)
     p = p_field(:,i);
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     normalized_spl = spl_values - max(spl_values);
-    polarplot(theta, normalized_spl, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
+    polarplot(flip(theta), flip(normalized_spl), 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
     hold on;
 end
 grid on;

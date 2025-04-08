@@ -36,4 +36,5 @@ addpath(genpath("Ex_12"))
 %% USING FULL BEM and FEM -> ex9
 addpath(genpath("Tools"))
 
-%%
+%% PROJECT DIR
+addpath(genpath("project"))
