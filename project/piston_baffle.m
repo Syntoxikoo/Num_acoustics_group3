@@ -27,11 +27,11 @@ beta=0;
 
 
 % DEFINITION OF DOMAIN GEOMETRY AND EXCITATION
-piston_rad = 0.5;
+piston_rad = 0.1;
 piston_ctr = 0;
-baffle_rad = 2;
+baffle_rad = 0.3;
 baffle_z = 0;
-thickness = 0.5; % changing thickness seems to have no effect since interior pb is omitted
+thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
 segments=[0 baffle_z piston_rad baffle_z 5 0 el_wl;
           piston_rad baffle_z baffle_rad baffle_z 5 0 el_wl;
