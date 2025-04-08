@@ -20,7 +20,7 @@ m=0;                 % Axisymetrical excitation, circunferential mode m=0
 
 
 % Field points parameters
-thetamax=pi/2;        % Maximum angle for representation
+thetamax=pi;        % Maximum angle for representation
 Rmed=1;               % Radius of the arc of field points
 beta=0; 
 
@@ -156,11 +156,15 @@ xlabel(['Distance on the axis z (m)']); ylabel('Gradient of the pressure [dB/cm]
 
 figure;
 
+theta_full = [theta; pi + theta];
+
+
 for i = 1:length(fr)
     p = p_field(:,i);
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     normalized_spl = spl_values - max(spl_values);
-    polarplot(flip(theta), flip(normalized_spl), 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
+    spl_full = [normalized_spl; flip(normalized_spl)];
+    polarplot(theta_full, spl_full, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
     hold on;
 end
 
@@ -172,7 +176,9 @@ grid on;
 title('Directivity Pattern Comparison');
 rlim([-30, 0]);
 rticks(-30:6:0);
-thetaticks(0:15:90);
-thetalim([0 90]);
+thetaticks(-180:15:180);
+thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
+
+save("data/BEM_uf","p_field","theta");
