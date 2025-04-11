@@ -13,7 +13,7 @@ Hr = 50;             % Relative humidity (%)
  
 % General parameters:
 fr=500;
-fr = [1000 2000 4000 8000];
+fr = [1000 2000 4000 9];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
 espac=1/el_wl;       % Spacing of field points
@@ -45,7 +45,7 @@ segments=[0 baffle_z piston_rad baffle_z 5 0 el_wl;
 M=size(rzb,1);N=size(topology,1);             % M nodes, N elements
 
 % CHIEF points:
-rzb_chief=[linspace(0,baffle_rad-0.05,10)' linspace(baffle_z-0.05,baffle_z-thickness+0.05,10)' -ones(10,1)];
+rzb_chief=[linspace(0,0.2,10)' linspace(-0.1,-0.25,10)' -ones(10,1)];
 hold on; plot(rzb_chief(:,1),rzb_chief(:,2),'md',DisplayName="Chief")
 
 
@@ -181,4 +181,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("data/BEM_f","p_fieldF","theta","fr","rr");
+save("data/BEM_f","p_fieldF","theta");

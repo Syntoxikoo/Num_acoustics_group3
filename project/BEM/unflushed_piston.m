@@ -1,5 +1,5 @@
 clear
- 
+
 
 % -------------------- INPUT DATA ---------------------
  
@@ -11,7 +11,7 @@ Hr = 50;             % Relative humidity (%)
  
 % General parameters:
 fr=500;
-fr = [250 500 1000 2000];
+fr = [1000 2000 4000 8000];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
 espac=1/el_wl;       % Spacing of field points
@@ -27,7 +27,7 @@ beta=0;
 
 
 % DEFINITION OF DOMAIN GEOMETRY AND EXCITATION
-pist_depth = 0.05;
+pist_depth = 0.1;
 piston_rad = 0.1;
 piston_ctr = 0;
 baffle_rad = 0.3;
@@ -45,13 +45,13 @@ segments=[0 -pist_depth piston_rad -pist_depth 5 0 el_wl;
 M=size(rzb,1);N=size(topology,1);             % M nodes, N elements
 
 % CHIEF points:
-rzb_chief=[linspace(0,0.2,10)' linspace(-0.1,-0.25,10)' -ones(10,1)];
+rzb_chief=[linspace(0,baffle_rad-0.05,10)' linspace(baffle_z-pist_depth-0.05,baffle_z-thickness+0.05,10)' -ones(10,1)];
 hold on; plot(rzb_chief(:,1),rzb_chief(:,2),'md',DisplayName="Chief")
 
 
 % Excitation: Tweeter membrane displacement
 vz=zeros(M,1);
-nn1=find(rzb(:,1)>=piston_ctr & rzb(:,1)<=piston_rad & rzb(:,2)>=-5e-3-eps & rzb(:,2)<= 5e-3-eps);
+nn1=find(rzb(:,1)>=piston_ctr & rzb(:,1)<=piston_rad & rzb(:,2)>=-5e-3-eps-pist_depth & rzb(:,2)<= 5e-3-eps-pist_depth);
 
 plot(rzb(nn1,1),rzb(nn1,2), "^b")
 
@@ -80,7 +80,7 @@ normplot=mean(mean(abs(diff(rzb(:,1:2))))); % quiver on the previous geometry fi
 
 %%
 
-p_field = zeros(length(fprz),length(fr));
+p_fieldUF = zeros(length(fprz),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
@@ -95,48 +95,48 @@ for ii= 1:length(fr)
     clear A B
     
     
-    figure;
-    subplot(2,1,1);
-    title("pressure at the surface, f ="+fr+"Hz")
-    plot((nn1),abs(ps(nn1)), "DisplayName","Ps_piston" );grid; hold on;
-    plot((max(nn1):length(ps)),abs(ps(max(nn1):end)), "DisplayName","Ps_baffle" )
-    xlabel('Nodes on the generator'); ylabel('Pressure modulus (Pa)')
-    subplot(2,1,2);plot(angle(ps)*180/pi);grid
-    xlabel('Nodes on the generator'); ylabel('Phase of the pressure (degrees)')
-    legend()
+    % figure;
+    % subplot(2,1,1);
+    % title("pressure at the surface, f ="+fr+"Hz")
+    % plot((nn1),abs(ps(nn1)), "DisplayName","Ps_piston" );grid; hold on;
+    % plot((max(nn1):length(ps)),abs(ps(max(nn1):end)), "DisplayName","Ps_baffle" )
+    % xlabel('Nodes on the generator'); ylabel('Pressure modulus (Pa)')
+    % subplot(2,1,2);plot(angle(ps)*180/pi);grid
+    % xlabel('Nodes on the generator'); ylabel('Phase of the pressure (degrees)')
+    % legend()
 
     % Field points calculation
-    p_field(:,ii)=FieldPnt3(fprz,ps,vn,rzb,topology,kp(ii),m,rho,c);
+    p_fieldUF(:,ii)=FieldPnt3(fprz,ps,vn,rzb,topology,kp(ii),m,rho,c);
 end
 
 % Acoustc centre estimation
-p_far=abs(p_field(length(rr)+1));
-p_near=abs(p_field(length(rr)+length(rfp)));
+p_far=abs(p_fieldUF(length(rr)+1));
+p_near=abs(p_fieldUF(length(rr)+length(rfp)));
 r_AcCen=rfp(1) - (rfp(1)-rfp(end))/(1/p_far-1/p_near)/p_far;
 
 
 % PRESENTATION OF RESULTS
 
 % Sound pressure on an arc of far field points
-figure; 
-subplot(3,2,1);plot(rr,20*log10(abs(p_field(1:length(rr)))/20e-6));grid
-xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('SPL [dB]')
-title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
-subplot(3,2,3);plot(rr,angle(p_field(1:length(rr)))*180/pi);grid
-xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Phase of the pressure [degrees]')
-subplot(3,2,5);plot(rr,gradient(20*log10(abs(p_field(1:length(rr)))),espac)/100,'-x');grid
-xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Gradient of the pressure [dB/cm]')
-
+% figure; 
+% subplot(3,2,1);plot(rr,20*log10(abs(p_fieldUF(1:length(rr)))/20e-6));grid
+% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('SPL [dB]')
+% title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
+% subplot(3,2,3);plot(rr,angle(p_fieldUF(1:length(rr)))*180/pi);grid
+% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Phase of the pressure [degrees]')
+% subplot(3,2,5);plot(rr,gradient(20*log10(abs(p_fieldUF(1:length(rr)))),espac)/100,'-x');grid
+% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Gradient of the pressure [dB/cm]')
+% 
 
 
 % Sound pressure on an radius of far field points
-subplot(3,2,2);plot(rfp,20*log10(abs(p_field(length(rr)+1:length(rr)+length(rfp)))/20e-6));grid
-xlabel(['Distance on the axis z (m)']); ylabel('SPL [dB]')
-title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
-subplot(3,2,4);plot(rfp,angle(p_field(length(rr)+1:length(rr)+length(rfp)))*180/pi);grid
-xlabel(['Distance on the axis z (m)']); ylabel('Phase of the pressure [degrees]')
-subplot(3,2,6);plot(rfp,gradient(20*log10(abs(p_field(length(rr)+1:length(rr)+length(rfp)))),espac)/100,'-x');grid
-xlabel(['Distance on the axis z (m)']); ylabel('Gradient of the pressure [dB/cm]')
+% subplot(3,2,2);plot(rfp,20*log10(abs(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))/20e-6));grid
+% xlabel(['Distance on the axis z (m)']); ylabel('SPL [dB]')
+% title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
+% subplot(3,2,4);plot(rfp,angle(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))*180/pi);grid
+% xlabel(['Distance on the axis z (m)']); ylabel('Phase of the pressure [degrees]')
+% subplot(3,2,6);plot(rfp,gradient(20*log10(abs(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))),espac)/100,'-x');grid
+% xlabel(['Distance on the axis z (m)']); ylabel('Gradient of the pressure [dB/cm]')
 
 %%
 % figure;
@@ -160,7 +160,7 @@ theta_full = [theta; pi + theta];
 
 
 for i = 1:length(fr)
-    p = p_field(:,i);
+    p = p_fieldUF(:,i);
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     normalized_spl = spl_values - max(spl_values);
     spl_full = [normalized_spl; flip(normalized_spl)];
@@ -174,11 +174,11 @@ pax.ThetaDir = "clockwise";
 
 grid on;
 title('Directivity Pattern Comparison');
-rlim([-30, 0]);
-rticks(-30:6:0);
+rlim([-60, 0]);
+rticks(-60:6:0);
 thetaticks(-180:15:180);
 thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("data/BEM_uf","p_field","theta");
+save("data/BEM_uf","p_fieldUF","theta","fr","rr");
