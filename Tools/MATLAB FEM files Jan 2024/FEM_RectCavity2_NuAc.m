@@ -43,7 +43,7 @@ k=2*pi*fr/c0;
 % line source position
 p_source=[lx*0.05 ly*0.05]; % Source close to corner
 % p_source=[lx/2 ly/2]; % Centered source
-Rs = 0.01;  % Radius of te source as a pulsating sphere
+Rs = 0.05;  % Radius of te source as a pulsating sphere
 % Normal velocity at the source. See"Fundamentals.. book by Finn J.", p.175
 % and compare with the Green's function used in BEM 
 V0 = besselh(1,2,k*Rs)/(4*rho*c0) ; 

@@ -55,20 +55,20 @@ sf ='E1-E2';           % Represents the geometrical operation to be made.
 char(ns')              % This shows the names in "ns". Must correspond to those in the operation in "sf".
 
 % Version 2: Rectangular outer boundary and scattering cylinder. Manually defined.
-% lx=Rc*30;ly=Rc*30;
-% gd =[3     1;
-%      4     0;
-%      -lx/2 0;
-%      lx/2  Rc;
-%      lx/2  0;
-%      -lx/2 0;
-%      ly/2  0;
-%      ly/2  0;
-%      -ly/2 0;
-%      -ly/2 0];           % Each column is a geometrical object (rectangle/circle here). See help of the "decsg" function.
-% ns = [82 69; 49 49];     % Names of the geometrical objects, characters in numeric (ASCII) form.
-% sf ='R1-E1';             % Represents the geometrical operation to be made.
-% char(ns')                % This shows the names in "ns". Must correspond to those in the operation in "sf".
+lx=Rc*30;ly=Rc*30;
+gd =[3     1;
+     4     0;
+     -lx/2 0;
+     lx/2  Rc;
+     lx/2  0;
+     -lx/2 0;
+     ly/2  0;
+     ly/2  0;
+     -ly/2 0;
+     -ly/2 0];           % Each column is a geometrical object (rectangle/circle here). See help of the "decsg" function.
+ns = [82 69; 49 49];     % Names of the geometrical objects, characters in numeric (ASCII) form.
+sf ='R1-E1';             % Represents the geometrical operation to be made.
+char(ns')                % This shows the names in "ns". Must correspond to those in the operation in "sf".
 
 
 g = decsg(gd,sf,ns); % Create the geometry.
@@ -143,9 +143,10 @@ RHSfem=diag(FEM.G);         % Right hand side: Multiply by the boundary velocity
 prad = LHSfem\(RHSfem*ones(Mfem,1));
 
 
-% Solve using PDE function (no explicit coefficient matrices):
-% result = solvepde(model);
-% prad = result.NodalSolution; % scattered pressure
+% Solvef using PDE function (no explicit coefficient matrices):
+result = solvepde(model);
+prad = result.NodalSolution; % scattered pressure
+
 
 % Plot FEM Solution
 figure
@@ -153,7 +154,7 @@ pdeplot(model,'XYData',real(prad),'Mesh','off'); % Plot scattered pressure
 colormap(parula);
 title(['Pressure around cylinder - Frequency = ' num2str(fr) ' Hz']);
 % pdeplot(model,'XYData',real(prad),'ZData',real(u),'Mesh','off'); % Plot as a 3D surface 
-
+%%
 
 % Animate Solution to Wave Equation
 % Using the solution to the Helmholtz equation, construct an animation showing
@@ -178,5 +179,5 @@ for j = 1:m
     axis off
     M(j) = getframe(hf);
 end
-
+% movie(hf,M,10)
 % To play the movie 10 times, use the |movie(hf,M,10)| command.
