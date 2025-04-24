@@ -24,8 +24,8 @@ f =0;
 % The overall shape could be modified from the "FEM_model_piston.m" inside
 % the geometry folder.
 % save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
-load("project/FEM/geometry/flushed_piston_10meterFF.mat")
-flanged_depth = 0.0;
+load("project/FEM/geometry/flushed_pistonv2.mat")
+flanged_depth = 0.1;
 gd(7:8,3) =  - flanged_depth;
 
 
@@ -58,37 +58,44 @@ if flanged_depth == 0.0
 else
     EdgU0 = 1;
     EdgB =  (2:10);
-    EdgO = (10:14);
+    EdgO = (11:14);
 end
 
-% VELOCITY OF PISTON
-pistBCFunc = @(loc,state)j*k*rho*c0*U0; 
-bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
-
-% BAFFLE Surface:
-bInner = applyBoundaryCondition(model,'neumann','Edge',EdgB,'g',0,'q',0); % Hard surface
-
-
-% FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
-outerBCFunc = @(loc,state)j*k; 
-bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
 
 %% Create Mesh, defining mesh density
-p_arr = {};
+p_arr = cell(1, length(fr));
+X = cell(1, length(fr));
+Y = cell(1, length(fr));
+N_arr = cell(1,length(fr));
 for ii = 1:length(fr)
-    mshdens = c0/fr/6;
+    mshdens = c0/fr(ii)/6;
     generateMesh(model,'Hmax',mshdens); 
+   
+    Mfem=size(model.Mesh.Nodes,2);      % Nr. of nodes
+    Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
     if ii == 1
         figure(2)
         pdemesh(model); 
         axis equal;grid
-        Mfem=size(model.Mesh.Nodes,2);      % Nr. of nodes
-        Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
         title(['FEM mesh: Nodes = ' num2str(Mfem) '  Elements = ' num2str(Nfem)]);
         xlabel('x');ylabel('y');
     end
+    % VELOCITY OF PISTON
+    pistBCFunc = @(loc,state)j*k(ii)*rho*c0*U0; 
+    bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
+    
+    % BAFFLE Surface:
+    bInner = applyBoundaryCondition(model,'neumann','Edge',EdgB,'g',0,'q',0); % Hard surface
+    
+    
+    % FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
+    outerBCFunc = @(loc,state)j*k(ii); 
+    bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
 
-%% Solve using the FEM matrices:
+ %Solve using the FEM matrices:
+    % Specify PDE Coefficients 
+    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a(ii),'f',f); % Homogeneous equation
+
     FEM = assembleFEMatrices(model);
     % FEM.K is the stiffness matrix.
     
@@ -96,6 +103,12 @@ for ii = 1:length(fr)
     RHside = diag(FEM.G);
     p = LHside\(RHside*ones(Mfem,1));
     p_arr{ii} = p;
+    Node_idx = model.Mesh.findNodes("region","Edge",(EdgO));
+    N_arr{ii} = Node_idx;
+    x = model.Mesh.Nodes(1,Node_idx);
+    y = model.Mesh.Nodes(2,Node_idx);
+    X{ii}= x;
+    Y{ii} = y;
 end
 % %% Plot FEM Solution
 % figure
@@ -105,23 +118,30 @@ end
 
 %% get directivity pattern
 
-Node_idx = model.Mesh.findNodes("region","Edge",(EdgO));
 
 
-x = model.Mesh.Nodes(1,Node_idx);
-y = model.Mesh.Nodes(2,Node_idx);
-theta = atan2(y,x);
-theta(theta < 0) = theta(theta < 0) + 2*pi;
-
-[theta,sortIdx] = sort(theta);
 
 
+
+the_arr = cell(1,length(fr));
 figure;
+for ii =1: length(fr)
 
-spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
-Nspl = spl_values - max(spl_values);
-polarplot(theta-pi/2, Nspl, 'LineWidth', 2, 'DisplayName', [num2str(fr) ' Hz']);
-% 
+    Node_idx = cell2mat(N_arr(ii));
+
+    theta = atan2(cell2mat(Y(ii)),cell2mat(X(ii)));
+    theta(theta < 0) = theta(theta < 0) + 2*pi;
+    
+    [theta,sortIdx] = sort(theta);
+    the_arr{ii} = theta;
+    p = cell2mat(p_arr(ii));
+    spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
+    Nspl = spl_values - max(spl_values);
+    polarplot(theta-pi/2, Nspl, 'LineWidth', 2, 'DisplayName', [num2str(fr(ii)) ' Hz']);
+
+    hold on;
+end
+
 pax = gca;
 pax.ThetaZeroLocation = "top";
 pax.ThetaDir = "clockwise";
@@ -135,3 +155,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
+save("Result_FEM_flushed.mat", "the_arr",p_)

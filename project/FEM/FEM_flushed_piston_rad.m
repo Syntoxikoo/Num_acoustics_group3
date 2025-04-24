@@ -25,7 +25,7 @@ f =0;
 % the geometry folder.
 % save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
 load("project/FEM/geometry/flushed_pistonv2.mat")
-flanged_depth = 0.1;
+flanged_depth = 0.0;
 gd(7:8,3) =  - flanged_depth;
 
 
@@ -58,7 +58,7 @@ if flanged_depth == 0.0
 else
     EdgU0 = 1;
     EdgB =  (2:10);
-    EdgO = (10:14);
+    EdgO = (11:14);
 end
 
 
@@ -123,7 +123,8 @@ end
 
 
 
-
+the_arr = cell(1,length(fr));
+sor_arr = cell(1,length(fr));
 figure;
 for ii =1: length(fr)
 
@@ -133,7 +134,8 @@ for ii =1: length(fr)
     theta(theta < 0) = theta(theta < 0) + 2*pi;
     
     [theta,sortIdx] = sort(theta);
-    
+    sor_arr{ii} = sortIdx;
+    the_arr{ii} = theta;
     p = cell2mat(p_arr(ii));
     spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
     Nspl = spl_values - max(spl_values);
@@ -155,3 +157,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
+save("Result_FEM_unflushed.mat", "the_arr","p_arr","N_arr",'fr','model')
