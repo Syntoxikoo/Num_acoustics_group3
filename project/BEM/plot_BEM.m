@@ -36,5 +36,6 @@ rlim([-60, 0]);
 rticks(-60:6:0);
 thetaticks(-180:15:180);
 thetalim([-180 180]);
-legend('Location', 'best');
+lgd = legend;
+lgd.Position = [0.85, 0.1, 0.1, 0.1];
 hold off;
