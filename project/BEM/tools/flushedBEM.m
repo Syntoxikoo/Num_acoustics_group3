@@ -1,5 +1,9 @@
-clear
+function [fr,p_fieldF,rr,theta] = flushedBEM(el_wl)
+% function to calculate flushed piston in baffle
+% el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
 
+
+addpath(genpath("project"))
 
 % -------------------- INPUT DATA ---------------------
  
@@ -10,10 +14,9 @@ Hr = 50;             % Relative humidity (%)
 [rho,c,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
  
 % General parameters:
-fr=500;
 fr = [1000 2000 4000 8000];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
-el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
+
 espac=1/el_wl;       % Spacing of field points
 fp_spc_deg = 1;      % Field point spacing in degree for the arc
 kp=2*pi*fr/c;        % Wavenumber (1/m)
@@ -28,15 +31,13 @@ beta=0;
 
 
 % DEFINITION OF DOMAIN GEOMETRY AND EXCITATION
-pist_depth = 0.1;
 piston_rad = 0.1;
 piston_ctr = 0;
 baffle_rad = 0.3;
 baffle_z = 0;
 thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-segments=[0 -pist_depth piston_rad -pist_depth 5 0 el_wl;
-          piston_rad -pist_depth piston_rad baffle_z 5 0 el_wl;
+segments=[0 baffle_z piston_rad baffle_z 5 0 el_wl;
           piston_rad baffle_z baffle_rad baffle_z 5 0 el_wl;
           baffle_rad baffle_z baffle_rad (baffle_z - thickness) 5 0 el_wl;
           baffle_rad (baffle_z-thickness) 0 (baffle_z-thickness) 5 0 el_wl];
@@ -46,13 +47,13 @@ segments=[0 -pist_depth piston_rad -pist_depth 5 0 el_wl;
 M=size(rzb,1);N=size(topology,1);             % M nodes, N elements
 
 % CHIEF points:
-rzb_chief=[linspace(0,baffle_rad-0.05,10)' linspace(baffle_z-pist_depth-0.05,baffle_z-thickness+0.05,10)' -ones(10,1)];
+rzb_chief=[linspace(0,baffle_rad-0.05,10)' linspace(baffle_z-0.05,baffle_z-thickness+0.05,10)' -ones(10,1)];
 hold on; plot(rzb_chief(:,1),rzb_chief(:,2),'md',DisplayName="Chief")
 
 
 % Excitation: Tweeter membrane displacement
 vz=zeros(M,1);
-nn1=find(rzb(:,1)>=piston_ctr & rzb(:,1)<=piston_rad & rzb(:,2)>=-5e-3-eps-pist_depth & rzb(:,2)<= 5e-3-eps-pist_depth);
+nn1=find(rzb(:,1)>=piston_ctr & rzb(:,1)<=piston_rad & rzb(:,2)>=-5e-3-eps & rzb(:,2)<= 5e-3-eps);
 
 plot(rzb(nn1,1),rzb(nn1,2), "^b")
 
@@ -81,7 +82,7 @@ normplot=mean(mean(abs(diff(rzb(:,1:2))))); % quiver on the previous geometry fi
 
 %%
 
-p_fieldUF = zeros(length(fprz),length(fr));
+p_fieldF = zeros(length(fprz),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
@@ -107,79 +108,12 @@ for ii= 1:length(fr)
     % legend()
 
     % Field points calculation
-    p_fieldUF(:,ii)=FieldPnt3(fprz,ps,vn,rzb,topology,kp(ii),m,rho,c);
+    p_fieldF(:,ii)=FieldPnt3(fprz,ps,vn,rzb,topology,kp(ii),m,rho,c);
 end
 
 % Acoustc centre estimation
-p_far=abs(p_fieldUF(length(rr)+1));
-p_near=abs(p_fieldUF(length(rr)+length(rfp)));
+p_far=abs(p_fieldF(length(rr)+1));
+p_near=abs(p_fieldF(length(rr)+length(rfp)));
 r_AcCen=rfp(1) - (rfp(1)-rfp(end))/(1/p_far-1/p_near)/p_far;
 
-
-% PRESENTATION OF RESULTS
-
-% Sound pressure on an arc of far field points
-% figure; 
-% subplot(3,2,1);plot(rr,20*log10(abs(p_fieldUF(1:length(rr)))/20e-6));grid
-% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('SPL [dB]')
-% title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
-% subplot(3,2,3);plot(rr,angle(p_fieldUF(1:length(rr)))*180/pi);grid
-% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Phase of the pressure [degrees]')
-% subplot(3,2,5);plot(rr,gradient(20*log10(abs(p_fieldUF(1:length(rr)))),espac)/100,'-x');grid
-% xlabel(['Arc length, for R = ' num2str(Rmed) ' m']); ylabel('Gradient of the pressure [dB/cm]')
-% 
-
-
-% Sound pressure on an radius of far field points
-% subplot(3,2,2);plot(rfp,20*log10(abs(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))/20e-6));grid
-% xlabel(['Distance on the axis z (m)']); ylabel('SPL [dB]')
-% title(['p modulus (dB), freq.= ' num2str(fr) ' Hz']);
-% subplot(3,2,4);plot(rfp,angle(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))*180/pi);grid
-% xlabel(['Distance on the axis z (m)']); ylabel('Phase of the pressure [degrees]')
-% subplot(3,2,6);plot(rfp,gradient(20*log10(abs(p_fieldUF(length(rr)+1:length(rr)+length(rfp)))),espac)/100,'-x');grid
-% xlabel(['Distance on the axis z (m)']); ylabel('Gradient of the pressure [dB/cm]')
-
-%%
-% figure;
-% % Normalize the SPL values relative to the on-axis (0 degrees) response
-% spl_values = 20*log10(abs(p_field(1:length(rr)))/20e-6);
-% normalized_spl = spl_values - max(spl_values);
-% 
-% % Create polar plot with better formatting
-% polarplot(theta, normalized_spl, 'LineWidth', 2);
-% grid on;
-% title(['Directivity Pattern at ' num2str(fr) ' Hz']);
-% rlim([min(normalized_spl(:,1))-5, 0]);  % Set reasonable limits for radial axis
-% rticks(-30:6:0);  % Set radial ticks every 6 dB
-% thetaticks(0:15:90);  % Set angular ticks every 15 degrees
-% thetalim([0 90]);  % Limit to the calculated range (0 to 90 degrees)
-
-
-figure;
-
-theta_full = [theta; pi + theta];
-
-
-for i = 1:length(fr)
-    p = p_fieldUF(:,i);
-    spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
-    normalized_spl = spl_values - max(spl_values);
-    spl_full = [normalized_spl; flip(normalized_spl)];
-    polarplot(theta_full, spl_full, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
-    hold on;
 end
-
-pax = gca;
-pax.ThetaZeroLocation = "top";
-pax.ThetaDir = "clockwise";
-
-grid on;
-title('Directivity Pattern Comparison');
-rlim([-60, 0]);
-rticks(-60:6:0);
-thetaticks(-180:15:180);
-thetalim([-180 180]);
-legend('Location', 'best');
-hold off;
-
-save("data/BEM_uf","p_fieldUF","theta","fr","rr");

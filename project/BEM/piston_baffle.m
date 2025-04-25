@@ -17,6 +17,7 @@ fr = [1000 2000 4000 8000];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
 espac=1/el_wl;       % Spacing of field points
+fp_spc_deg = 1;      % Field point spacing in degree for the arc
 kp=2*pi*fr/c;        % Wavenumber (1/m)
 m=0;                 % Axisymetrical excitation, circunferential mode m=0
 
@@ -64,7 +65,7 @@ vn=dot([zeros(M,1) vz]',nvect')';
 
 % Definition of field points
 % field points on the arc
-theta=(0:2*asin(espac/2/Rmed):thetamax)';rr=theta*Rmed;
+theta=(0:fp_spc_deg*pi/180:thetamax)';rr=theta*Rmed;
 fprzC=[Rmed*sin(theta) Rmed*cos(theta) ones(length(theta),1)*4*pi];
 % field points on the radial direction
 rfp=(Rmed*1.1:-espac:Rmed*0.9)';
