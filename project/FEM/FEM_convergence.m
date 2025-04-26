@@ -5,7 +5,7 @@ clear; close all;
 % Constants
 rho=1.21;
 c0=343;
-fr = [8000]; 
+fr = 8000; 
 omega = 2 * pi * fr;
 k = omega/c0;
 U0 = 1/(rho*c0);
@@ -53,20 +53,13 @@ else
     EdgO = (11:14);
 end
 %% Ground truth
-mshdens = c0/fr(ii)/6;
+mshdens = c0/fr/10;
     generateMesh(model,'Hmax',mshdens); 
    
     Mfem=size(model.Mesh.Nodes,2);      % Nr. of nodes
     Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
-    if ii == 1
-        figure(2)
-        pdemesh(model); 
-        axis equal;grid
-        title(['FEM mesh: Nodes = ' num2str(Mfem) '  Elements = ' num2str(Nfem)]);
-        xlabel('x');ylabel('y');
-    end
     % VELOCITY OF PISTON
-    pistBCFunc = @(loc,state)j*k(ii)*rho*c0*U0; 
+    pistBCFunc = @(loc,state)j*k*rho*c0*U0; 
     bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
     
     % BAFFLE Surface:
@@ -74,47 +67,45 @@ mshdens = c0/fr(ii)/6;
     
     
     % FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
-    outerBCFunc = @(loc,state)j*k(ii); 
+    outerBCFunc = @(loc,state)j*k; 
     bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
 
  %Solve using the FEM matrices:
     % Specify PDE Coefficients 
-    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a(ii),'f',f); % Homogeneous equation
+    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a,'f',f); % Homogeneous equation
 
     FEM = assembleFEMatrices(model);
     % FEM.K is the stiffness matrix.
     
     LHside = (FEM.K + FEM.A+FEM.Q);
     RHside = diag(FEM.G);
-    p = LHside\(RHside*ones(Mfem,1));
-    p_arr{ii} = p;
-    Node_idx = model.Mesh.findNodes("region","Edge",(EdgO));
-    N_arr{ii} = Node_idx;
-    x = model.Mesh.Nodes(1,Node_idx);
-    y = model.Mesh.Nodes(2,Node_idx);
-    X{ii}= x;
-    Y{ii} = y;
+    p_true = LHside\(RHside*ones(Mfem,1));
+    
+    Node_idx_true = model.Mesh.findNodes("region","Edge",(EdgO));
+    
+    x_true = model.Mesh.Nodes(1,Node_idx_true);
+    y_true = model.Mesh.Nodes(2,Node_idx_true);
+    [x_true,sortIdx] = sort(x_true);
+    y_true = y_true(sortIdx);
+    p_true = p_true(Node_idx_true(sortIdx));
+    save("project/data/FEM_groundTruth.mat","fr","model","mshdens","p_true","Node_idx_true","x_true","y_true")
 %% Create Mesh, defining mesh density
-p_arr = cell(1, length(fr));
-X = cell(1, length(fr));
-Y = cell(1, length(fr));
-N_arr = cell(1,length(fr));
 precis = (1:0.2:6);
+p_arr = cell(1, length(precis));
+N_arr = cell(1,length(precis));
+X = cell(1, length(precis));
+Y = cell(1, length(precis));
+Mfem = zeros(1,length(precis));
 for ii = 1:length(precis)
-    mshdens = c0/fr(ii)/6;
+    disp("Computing:"+ii +"/"+length(precis))
+    mshdens = c0/fr/precis(ii);
     generateMesh(model,'Hmax',mshdens); 
    
-    Mfem=size(model.Mesh.Nodes,2);      % Nr. of nodes
+    Mfem(ii)=size(model.Mesh.Nodes,2);      % Nr. of nodes
     Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
-    if ii == 1
-        figure(2)
-        pdemesh(model); 
-        axis equal;grid
-        title(['FEM mesh: Nodes = ' num2str(Mfem) '  Elements = ' num2str(Nfem)]);
-        xlabel('x');ylabel('y');
-    end
+    
     % VELOCITY OF PISTON
-    pistBCFunc = @(loc,state)j*k(ii)*rho*c0*U0; 
+    pistBCFunc = @(loc,state)j*k*rho*c0*U0; 
     bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
     
     % BAFFLE Surface:
@@ -122,30 +113,48 @@ for ii = 1:length(precis)
     
     
     % FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
-    outerBCFunc = @(loc,state)j*k(ii); 
+    outerBCFunc = @(loc,state)j*k; 
     bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
 
  %Solve using the FEM matrices:
     % Specify PDE Coefficients 
-    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a(ii),'f',f); % Homogeneous equation
+    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a,'f',f); % Homogeneous equation
 
     FEM = assembleFEMatrices(model);
     % FEM.K is the stiffness matrix.
     
     LHside = (FEM.K + FEM.A+FEM.Q);
     RHside = diag(FEM.G);
-    p = LHside\(RHside*ones(Mfem,1));
-    p_arr{ii} = p;
+    p = LHside\(RHside*ones(Mfem(ii),1));
+    
     Node_idx = model.Mesh.findNodes("region","Edge",(EdgO));
-    N_arr{ii} = Node_idx;
     x = model.Mesh.Nodes(1,Node_idx);
     y = model.Mesh.Nodes(2,Node_idx);
-    X{ii}= x;
+    [x,sortIdx] = sort(x);
+    y = y(sortIdx);
+    p = p(Node_idx(sortIdx));
+    N_arr{ii} = Node_idx;
+    X{ii} = x;
     Y{ii} = y;
+    p_arr{ii} = p;
 end
 
 %% get directivity pattern
 
+load("FEM_groundTruth")
+err = zeros(1, length(precis));
+F = scatteredInterpolant(x_true.',y_true.',p_true);
+for ii = 1:length(err)
+    true_p_interp = F(cell2mat(X(ii)),cell2mat(Y(ii)));
+
+    err(ii) = mean(abs(true_p_interp.' - cell2mat(p_arr(ii)))./abs(true_p_interp.'));
 
 
+end
+
+figure;
+loglog(Mfem,err,'-o',"LineWidth",2); 
+title('Convergence of FEM (analytical is \lambda /10)' )
+xlabel('Number of elements'); ylabel('Relative error')
+grid
 
