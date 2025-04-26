@@ -5,16 +5,14 @@ clear; close all;
 % Constants
 rho=1.21;
 c0=343;
-fr = [1000 2000 4000 8000]; 
+fr = 8000; 
 omega = 2 * pi * fr;
 k = omega/c0;
 U0 = 1/(rho*c0);
 
 
 
-% * |k|, |c|, |a|, |f|: The coefficients and inhomogeneous term.
-
-c = 1; % Do not mistake for c0 (speed of sound)
+c = 1;
 % here c corresponds to a coefficient in front of the stiffness matrix
 a = -k.^2;
 % here a corresponds to a coefficient in front of the mass matrix
@@ -25,19 +23,13 @@ f =0;
 % the geometry folder.
 % save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
 load("project/FEM/geometry/flushed_pistonv2.mat")
-flanged_depth = 0.0;
+flanged_depth = 0.1;
 gd(7:8,3) =  - flanged_depth;
-
-
-char(ns)
-
 
 g = decsg(gd,sf,ns); % Create the geometry.
 
-
 numberOfPDE = 1; 
 model = createpde(numberOfPDE);
-
 
 % Convert the geometry and append it to the pde model.
 geometryFromEdges(model,g);
@@ -60,28 +52,14 @@ else
     EdgB =  (2:10);
     EdgO = (11:14);
 end
-
-
-%% Create Mesh, defining mesh density
-p_arr = cell(1, length(fr));
-X = cell(1, length(fr));
-Y = cell(1, length(fr));
-N_arr = cell(1,length(fr));
-for ii = 1:length(fr)
-    mshdens = c0/fr(ii)/6;
+%% Ground truth
+mshdens = c0/fr/10;
     generateMesh(model,'Hmax',mshdens); 
    
     Mfem=size(model.Mesh.Nodes,2);      % Nr. of nodes
     Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
-    if ii == 1
-        figure(2)
-        pdemesh(model); 
-        axis equal;grid
-        title(['FEM mesh: Nodes = ' num2str(Mfem) '  Elements = ' num2str(Nfem)]);
-        xlabel('x');ylabel('y');
-    end
     % VELOCITY OF PISTON
-    pistBCFunc = @(loc,state)j*k(ii)*rho*c0*U0; 
+    pistBCFunc = @(loc,state)j*k*rho*c0*U0; 
     bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
     
     % BAFFLE Surface:
@@ -89,72 +67,94 @@ for ii = 1:length(fr)
     
     
     % FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
-    outerBCFunc = @(loc,state)j*k(ii); 
+    outerBCFunc = @(loc,state)j*k; 
     bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
 
  %Solve using the FEM matrices:
     % Specify PDE Coefficients 
-    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a(ii),'f',f); % Homogeneous equation
+    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a,'f',f); % Homogeneous equation
 
     FEM = assembleFEMatrices(model);
     % FEM.K is the stiffness matrix.
     
     LHside = (FEM.K + FEM.A+FEM.Q);
     RHside = diag(FEM.G);
-    p = LHside\(RHside*ones(Mfem,1));
-    p_arr{ii} = p;
+    p_true = LHside\(RHside*ones(Mfem,1));
+    
+    Node_idx_true = model.Mesh.findNodes("region","Edge",(EdgO));
+    
+    x_true = model.Mesh.Nodes(1,Node_idx_true);
+    y_true = model.Mesh.Nodes(2,Node_idx_true);
+    [x_true,sortIdx] = sort(x_true);
+    y_true = y_true(sortIdx);
+    p_true = p_true(Node_idx_true(sortIdx));
+    save("project/data/FEM_groundTruth.mat","fr","model","mshdens","p_true","Node_idx_true","x_true","y_true")
+%% Create Mesh, defining mesh density
+precis = (1:0.2:6);
+p_arr = cell(1, length(precis));
+N_arr = cell(1,length(precis));
+X = cell(1, length(precis));
+Y = cell(1, length(precis));
+Mfem = zeros(1,length(precis));
+for ii = 1:length(precis)
+    disp("Computing:"+ii +"/"+length(precis))
+    mshdens = c0/fr/precis(ii);
+    generateMesh(model,'Hmax',mshdens); 
+   
+    Mfem(ii)=size(model.Mesh.Nodes,2);      % Nr. of nodes
+    Nfem=size(model.Mesh.Elements,2);   % Nr. of elements
+    
+    % VELOCITY OF PISTON
+    pistBCFunc = @(loc,state)j*k*rho*c0*U0; 
+    bInner = applyBoundaryCondition(model,'neumann','Edge',(EdgU0),'g',pistBCFunc,'q',0); % Hard surface
+    
+    % BAFFLE Surface:
+    bInner = applyBoundaryCondition(model,'neumann','Edge',EdgB,'g',0,'q',0); % Hard surface
+    
+    
+    % FREE FIELD: set to the characteristic impedance rho*c (non-reflecting).
+    outerBCFunc = @(loc,state)j*k; 
+    bOuter = applyBoundaryCondition(model,'neumann','Edge',EdgO,'g',0,'q',outerBCFunc); % This is equivalent to a (rho*c) impedance
+
+ %Solve using the FEM matrices:
+    % Specify PDE Coefficients 
+    specifyCoefficients(model,'m',0,'d',0,'c',c,'a',a,'f',f); % Homogeneous equation
+
+    FEM = assembleFEMatrices(model);
+    % FEM.K is the stiffness matrix.
+    
+    LHside = (FEM.K + FEM.A+FEM.Q);
+    RHside = diag(FEM.G);
+    p = LHside\(RHside*ones(Mfem(ii),1));
+    
     Node_idx = model.Mesh.findNodes("region","Edge",(EdgO));
-    N_arr{ii} = Node_idx;
     x = model.Mesh.Nodes(1,Node_idx);
     y = model.Mesh.Nodes(2,Node_idx);
-    X{ii}= x;
+    [x,sortIdx] = sort(x);
+    y = y(sortIdx);
+    p = p(Node_idx(sortIdx));
+    N_arr{ii} = Node_idx;
+    X{ii} = x;
     Y{ii} = y;
+    p_arr{ii} = p;
 end
-% %% Plot FEM Solution
-% figure
-% pdeplot(model,'XYData',20*log10(abs(p)/2e-5),'Mesh','off'); % Plot scattered pressure
-% colormap(parula);
-% title(['Pressure around cylinder - Frequency = ' num2str(fr) ' Hz']);
 
 %% get directivity pattern
 
+load("FEM_groundTruth")
+err = zeros(1, length(precis));
+F = scatteredInterpolant(x_true.',y_true.',p_true);
+for ii = 1:length(err)
+    true_p_interp = F(cell2mat(X(ii)),cell2mat(Y(ii)));
+
+    err(ii) = mean(abs(true_p_interp.' - cell2mat(p_arr(ii)))./abs(true_p_interp.'));
 
 
-
-
-
-the_arr = cell(1,length(fr));
-sor_arr = cell(1,length(fr));
-figure;
-for ii =1: length(fr)
-
-    Node_idx = cell2mat(N_arr(ii));
-
-    theta = atan2(cell2mat(Y(ii)),cell2mat(X(ii)));
-    theta(theta < 0) = theta(theta < 0) + 2*pi;
-    
-    [theta,sortIdx] = sort(theta);
-    sor_arr{ii} = sortIdx;
-    the_arr{ii} = theta;
-    p = cell2mat(p_arr(ii));
-    spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
-    Nspl = spl_values - max(spl_values);
-    polarplot(theta-pi/2, Nspl, 'LineWidth', 2, 'DisplayName', [num2str(fr(ii)) ' Hz']);
-
-    hold on;
 end
 
-pax = gca;
-pax.ThetaZeroLocation = "top";
-pax.ThetaDir = "clockwise";
+figure;
+loglog(Mfem,err,'-o',"LineWidth",2); 
+title('Convergence of FEM (analytical is \lambda /10)' )
+xlabel('Number of elements'); ylabel('Relative error')
+grid
 
-grid on;
-title('Directivity Pattern Comparison');
-rlim([-60, 0]);
-rticks(-60:6:0);
-thetaticks(-180:15:180);
-thetalim([-180 180]);
-legend('Location', 'best');
-hold off;
-
-save("Result_FEM_unflushed.mat", "the_arr","p_arr","N_arr",'fr','model')

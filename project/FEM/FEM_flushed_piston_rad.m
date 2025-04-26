@@ -2,13 +2,21 @@ clear; close all;
 
 % Problem Definition
 
+
+% Ambient conditions
+pa = 101325;         % Static pressure (Pa)
+t = 20;              % Temperature (ºC)
+Hr = 50;             % Relative humidity (%)
+[rho,c0,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
+ 
+
 % Constants
-rho=1.21;
-c0=343;
+
 fr = [1000 2000 4000 8000]; 
 omega = 2 * pi * fr;
 k = omega/c0;
-U0 = 1/(rho*c0);
+% U0 = 1/(rho*c0);
+U0 = 1e-3;
 
 
 
@@ -25,7 +33,7 @@ f =0;
 % the geometry folder.
 % save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
 load("project/FEM/geometry/flushed_pistonv2.mat")
-flanged_depth = 0.0;
+flanged_depth = 0.1;
 gd(7:8,3) =  - flanged_depth;
 
 
@@ -157,4 +165,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("Result_FEM_unflushed.mat", "the_arr","p_arr","N_arr",'fr','model')
+save("Result_FEM_flushed.mat", "the_arr","p_arr","N_arr",'fr','model', "sor_arr")
