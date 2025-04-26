@@ -1,7 +1,9 @@
-addpath(genpath("project"))
+% 2D BEM
+addpath(genpath("2DBEM"))
 
 clear
- 
+clc
+close all;
 
 % -------------------- INPUT DATA ---------------------
  
@@ -19,11 +21,11 @@ el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequen
 espac=1/el_wl;       % Spacing of field points
 fp_spc_deg = 1;      % Field point spacing in degree for the arc
 kp=2*pi*fr/c;        % Wavenumber (1/m)
-m=0;                 % Axisymetrical excitation, circunferential mode m=0
+betaP = NaN;           % normalised admittance of the plane, at k.
 
 
 % Field points parameters
-thetamax=pi;        % Maximum angle for representation
+thetamax=2*pi;        % Maximum angle for representation
 Rmed=1;               % Radius of the arc of field points
 beta=0; 
 
@@ -36,57 +38,60 @@ baffle_rad = 0.3;
 baffle_z = 0;
 thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-segments=[0 baffle_z piston_rad baffle_z 5 0 el_wl;
+segments=[-baffle_rad baffle_z -piston_rad baffle_z 5 0 el_wl;
+          -piston_rad baffle_z piston_rad baffle_z 5 0 el_wl;
           piston_rad baffle_z baffle_rad baffle_z 5 0 el_wl;
           baffle_rad baffle_z baffle_rad (baffle_z - thickness) 5 0 el_wl;
-          baffle_rad (baffle_z-thickness) 0 (baffle_z-thickness) 5 0 el_wl];
+          baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 5 0 el_wl
+          -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 5 0 el_wl];
 
-[rzb,topology]=nodegen(segments,'n');         % compute nodes and elements
-[nvect]=normals(rzb,topology,'y');            % normal vectors
-M=size(rzb,1);N=size(topology,1);             % M nodes, N elements
+[xyb,topology]=nodegen(segments,'y');         % compute nodes and elements
+M=size(xyb,1);N=size(topology,1);             % M nodes, N elements
 
 % CHIEF points:
-rzb_chief=[linspace(0,baffle_rad-0.05,10)' linspace(baffle_z-0.05,baffle_z-thickness+0.05,10)' -ones(10,1)];
-hold on; plot(rzb_chief(:,1),rzb_chief(:,2),'md',DisplayName="Chief")
+xyb_chief_left=[linspace(0,-baffle_rad+0.05,5)', linspace(baffle_z-0.05,baffle_z-thickness+0.05,5)', -ones(5,1)];
+xyb_chief_right=[linspace(0,baffle_rad-0.05,5)', linspace(baffle_z-0.05,baffle_z-thickness+0.05,5)', -ones(5,1)];
+xyb_chief= [xyb_chief_left; xyb_chief_right];
+hold on; plot(xyb_chief(:,1),xyb_chief(:,2),'md',DisplayName="Chief")
 
 
 % Excitation: Tweeter membrane displacement
-vz=zeros(M,1);
-nn1=find(rzb(:,1)>=piston_ctr & rzb(:,1)<=piston_rad & rzb(:,2)>=-5e-3-eps & rzb(:,2)<= 5e-3-eps);
+nn1=find(xyb(:,1)>=-piston_rad & xyb(:,1)<=piston_rad & xyb(:,2)>=-5e-3-eps & xyb(:,2)<= 5e-3-eps);
 
-plot(rzb(nn1,1),rzb(nn1,2), "^b")
+plot(xyb(nn1,1),xyb(nn1,2), "^b")
 
-% vz(nn1,1)=(rzb(nn1,1)-m_min(1))*vampl/(m_mid(1)-m_min(1));
-vz(nn1,1) = vampl* 1e-3;
+% assign velocity vector
+vn=zeros(M,1); vn(nn1)=vampl* 1e-3;
 
-vn=dot([zeros(M,1) vz]',nvect')';
 
 
 
 % Definition of field points
 % field points on the arc
 theta=(0:fp_spc_deg*pi/180:thetamax)';rr=theta*Rmed;
-fprzC=[Rmed*sin(theta) Rmed*cos(theta) ones(length(theta),1)*4*pi];
+fpxyC=[Rmed*sin(theta) Rmed*cos(theta)];
 % field points on the radial direction
 rfp=(Rmed*1.1:-espac:Rmed*0.9)';
-fprzR=[rfp*sin(beta) rfp*cos(beta) ones(length(rfp),1)*4*pi];
-fprz=[fprzC ; fprzR];
+fpxyR=[zeros(length(rfp),1) rfp];
+fpxy=[fpxyC ; fpxyR];
 
 % test figures showing velocity: z-component and normal velocity, and field points
 
-plot(fprz(:,1),fprz(:,2),'g+', DisplayName="Field points");
+plot(fpxy(:,1),fpxy(:,2),'g+', DisplayName="Field points");
+xlim([-1.2 1.2]);
+ylim([-1.2 1.2]);
 
-normplot=mean(mean(abs(diff(rzb(:,1:2))))); % quiver on the previous geometry figure
+normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry figure
 % quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
 
 %%
 
-p_fieldF = zeros(length(fprz),length(fr));
+p_fieldF = zeros(length(fpxy),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
     disp(['Calculating f= ' num2str(fr(ii)) ' Hz'])
-    [A,B,CConst]=BEMEquat0(rzb,topology,kp(ii),m,rzb_chief,[],false);
+    [A,B]=bem2d(xyb,topology,kp(ii),betaP,xyb_chief);
     
     disp(['Condition numbers, A: ' num2str(cond(A)) ' , B: ' num2str(cond(B))])
     
@@ -106,8 +111,10 @@ for ii= 1:length(fr)
     % xlabel('Nodes on the generator'); ylabel('Phase of the pressure (degrees)')
     % legend()
 
-    % Field points calculation
-    p_fieldF(:,ii)=FieldPnt3(fprz,ps,vn,rzb,topology,kp(ii),m,rho,c);
+    % calculate corresponding rows of coefficients
+    [Ap,Bp,CConst]=fieldpoints(xyb,topology,kp(ii),betaP,fpxy);
+    % solve the pressure on the field points
+    p_fieldF(:,ii)=(Ap*ps+1i*kp(ii)*rho*c*Bp*vn)./CConst;
 end
 
 % Acoustc centre estimation
@@ -157,15 +164,15 @@ r_AcCen=rfp(1) - (rfp(1)-rfp(end))/(1/p_far-1/p_near)/p_far;
 
 figure;
 
-theta_full = [theta; pi + theta];
+%theta_full = [theta; pi + theta];
 
 
 for i = 1:length(fr)
     p = p_fieldF(:,i);
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     normalized_spl = spl_values - max(spl_values);
-    spl_full = [normalized_spl; flip(normalized_spl)];
-    polarplot(theta_full, spl_full, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
+    %spl_full = [normalized_spl; flip(normalized_spl)];
+    polarplot(theta, normalized_spl, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz']);
     hold on;
 end
 
@@ -182,4 +189,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("data/BEM_f","p_fieldF","theta","fr","rr");
+save("data/2DBEM_f","p_fieldF","theta","fr","rr");

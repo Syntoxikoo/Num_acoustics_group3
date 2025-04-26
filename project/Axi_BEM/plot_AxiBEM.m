@@ -26,6 +26,10 @@ for i = 1:length(fr)
     
 end
 
+% Create dummy plots for simulation types
+hSim1 = polarplot(NaN, NaN, 'k-', 'LineWidth', 2,'DisplayName','flushed');  % solid line
+hSim2 = polarplot(NaN, NaN, 'k--', 'LineWidth', 2,'DisplayName','unflushed'); % dashed line
+
 pax = gca;
 pax.ThetaZeroLocation = "top";
 pax.ThetaDir = "clockwise";
