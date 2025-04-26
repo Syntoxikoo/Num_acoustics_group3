@@ -1,4 +1,4 @@
-% 2D BEM unflushed
+% 2D BEM inverse horn/slit compression
 addpath(genpath("2DBEM"))
 
 clear
@@ -14,7 +14,7 @@ Hr = 50;             % Relative humidity (%)
 [rho,c,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
  
 % General parameters:
-fr=500;
+%fr=500;
 fr = [1000 2000 4000 8000];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
@@ -36,30 +36,30 @@ piston_rad = 0.1;
 pist_depth = 0.1;
 piston_ctr = 0;
 baffle_rad = 0.3;
-baffle_z = 0;
+baffle_y = 0;
 thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-segments=[-baffle_rad baffle_z -piston_rad baffle_z 5 0 el_wl;
-          -piston_rad baffle_z -piston_rad -pist_depth 5 0 el_wl;
+segments=[-baffle_rad baffle_y -piston_rad*0.25 baffle_y 5 0 el_wl;
+          -piston_rad*0.25 baffle_y -piston_rad -pist_depth 5 -0.1 el_wl;
           -piston_rad -pist_depth piston_rad -pist_depth 5 0 el_wl;
-          piston_rad -pist_depth piston_rad baffle_z 5 0 el_wl;
-          piston_rad baffle_z baffle_rad baffle_z 5 0 el_wl;
-          baffle_rad baffle_z baffle_rad (baffle_z - thickness) 5 0 el_wl;
-          baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 5 0 el_wl
-          -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 5 0 el_wl];
+          piston_rad -pist_depth piston_rad*0.25 baffle_y 5 -0.1 el_wl;
+          piston_rad*0.25 baffle_y baffle_rad baffle_y 5 0 el_wl;
+          baffle_rad baffle_y baffle_rad (baffle_y - thickness) 5 0 el_wl;
+          baffle_rad (baffle_y-thickness) -baffle_rad (baffle_y-thickness) 5 0 el_wl
+          -baffle_rad (baffle_y-thickness) -baffle_rad baffle_y 5 0 el_wl];
 
 [xyb,topology]=nodegen(segments,'y');         % compute nodes and elements
 M=size(xyb,1);N=size(topology,1);             % M nodes, N elements
 
 % CHIEF points:
-xyb_chief_left=[linspace(0,-baffle_rad+0.05,5)', linspace(-pist_depth-0.05,baffle_z-thickness+0.05,5)', -ones(5,1)];
-xyb_chief_right=[linspace(0,baffle_rad-0.05,5)', linspace(-pist_depth-0.05,baffle_z-thickness+0.05,5)', -ones(5,1)];
+xyb_chief_left=[linspace(0,-baffle_rad+0.05,5)', linspace(-pist_depth-0.05,baffle_y-thickness+0.05,5)', -ones(5,1)];
+xyb_chief_right=[linspace(0,baffle_rad-0.05,5)', linspace(-pist_depth-0.05,baffle_y-thickness+0.05,5)', -ones(5,1)];
 xyb_chief= [xyb_chief_left; xyb_chief_right];
 hold on; plot(xyb_chief(:,1),xyb_chief(:,2),'md',DisplayName="Chief")
 
 
 % Excitation: Tweeter membrane displacement
-nn1=find(xyb(:,1)>=-piston_rad & xyb(:,1)<=piston_rad & xyb(:,2)>=-5e-4-eps-pist_depth & xyb(:,2)<= 5e-4-eps-pist_depth);
+nn1=find(xyb(:,1)>=-piston_rad-5e-4 & xyb(:,1)<=piston_rad & xyb(:,2)>=-5e-4-eps-pist_depth & xyb(:,2)<= 5e-4-eps-pist_depth);
 
 plot(xyb(nn1,1),xyb(nn1,2), "^b")
 
@@ -89,7 +89,7 @@ normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry fi
 
 %%
 
-p_fieldUF = zeros(length(fpxy),length(fr));
+p_fieldHORN = zeros(length(fpxy),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
@@ -117,12 +117,12 @@ for ii= 1:length(fr)
     % calculate corresponding rows of coefficients
     [Ap,Bp,CConst]=fieldpoints(xyb,topology,kp(ii),betaP,fpxy);
     % solve the pressure on the field points
-    p_fieldUF(:,ii)=(Ap*ps+1i*kp(ii)*rho*c*Bp*vn)./CConst;
+    p_fieldHORN(:,ii)=(Ap*ps+1i*kp(ii)*rho*c*Bp*vn)./CConst;
 end
 
 % Acoustc centre estimation
-p_far=abs(p_fieldUF(length(rr)+1));
-p_near=abs(p_fieldUF(length(rr)+length(rfp)));
+p_far=abs(p_fieldHORN(length(rr)+1));
+p_near=abs(p_fieldHORN(length(rr)+length(rfp)));
 r_AcCen=rfp(1) - (rfp(1)-rfp(end))/(1/p_far-1/p_near)/p_far;
 
 
@@ -171,7 +171,7 @@ figure;
 
 
 for i = 1:length(fr)
-    p = p_fieldUF(:,i);
+    p = p_fieldHORN(:,i);
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     normalized_spl = spl_values - max(spl_values);
     %spl_full = [normalized_spl; flip(normalized_spl)];
@@ -192,4 +192,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("data/2DBEM_uf","p_fieldUF","theta","fr","rr");
+save("data/2DBEM_HORN","p_fieldHORN","theta","fr","rr");

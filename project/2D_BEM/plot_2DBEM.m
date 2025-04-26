@@ -2,6 +2,7 @@
 clear;
 load("data/2DBEM_f.mat");
 load("data/2DBEM_uf.mat");
+load("data/2DBEM_HORN.mat");
 
 figure;
 
@@ -15,20 +16,27 @@ for i = 1:length(fr)
     normalized_splF = spl_valuesF - max(spl_valuesF);
     %spl_fullF = [normalized_splF; flip(normalized_splF)];
 
-    p = p_fieldUF(:,i);
-    spl_valuesUF = 20*log10(abs(p(1:length(rr)))/20e-6);
+    pUF = p_fieldUF(:,i);
+    spl_valuesUF = 20*log10(abs(pUF(1:length(rr)))/20e-6);
     normalized_spl_UF = spl_valuesUF - max(spl_valuesUF);
+    %spl_fullUF = [normalized_spl_UF; flip(normalized_spl_UF)];
+
+    pH = p_fieldHORN(:,i);
+    spl_valuesH = 20*log10(abs(pH(1:length(rr)))/20e-6);
+    normalized_spl_HORN = spl_valuesH - max(spl_valuesH);
     %spl_fullUF = [normalized_spl_UF; flip(normalized_spl_UF)];
 
     plot_F = polarplot(theta, normalized_splF, 'LineWidth', 2, 'DisplayName', [num2str(fr(i)) ' Hz'],"Color",corder(i,:));
     hold on;
     plot_UF = polarplot(theta, normalized_spl_UF, 'LineStyle','--','LineWidth', 2, 'HandleVisibility', 'off',"Color",corder(i,:));
+    plot_H = polarplot(theta, normalized_spl_HORN, 'LineStyle',':','LineWidth', 2, 'HandleVisibility', 'off',"Color",corder(i,:));
     
 end
 
 % Create dummy plots for simulation types
 hSim1 = polarplot(NaN, NaN, 'k-', 'LineWidth', 2,'DisplayName','flushed');  % solid line
 hSim2 = polarplot(NaN, NaN, 'k--', 'LineWidth', 2,'DisplayName','unflushed'); % dashed line
+hSim3 = polarplot(NaN, NaN, 'k:', 'LineWidth', 2,'DisplayName','horn (45°)'); % dashed line
 
 pax = gca;
 pax.ThetaZeroLocation = "top";
