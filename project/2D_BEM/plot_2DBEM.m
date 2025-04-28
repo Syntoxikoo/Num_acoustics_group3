@@ -1,4 +1,6 @@
 % plotting the to compare
+
+
 clear;
 load("data/2DBEM_f.mat");
 load("data/2DBEM_uf.mat");
