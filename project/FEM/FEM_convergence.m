@@ -158,3 +158,4 @@ title('Convergence of FEM (analytical is \lambda /10)' )
 xlabel('Number of elements'); ylabel('Relative error')
 grid
 
+saveas(gcf, "convergenceFEM1.svg")
