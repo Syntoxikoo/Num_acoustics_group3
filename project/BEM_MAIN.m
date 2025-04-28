@@ -1,4 +1,4 @@
-addpath(genpath("BEM"));
+addpath(genpath("Axi_BEM"));
 addpath(genpath("data"));
 addpath(genpath("RunFiles"));
 
@@ -6,12 +6,12 @@ close all;
 clear;
 
 %% calculate Box
-piston_baffle;
+flushed_piston_AxiBEM;
 clear;
 
 %%
-unflushed_piston;
+unflushed_piston_AxiBEM;
 clear;
 
 %% plot 
-plot_BEM;
+plot_AxiBEM;
