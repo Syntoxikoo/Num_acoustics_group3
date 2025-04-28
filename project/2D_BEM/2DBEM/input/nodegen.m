@@ -85,22 +85,22 @@ function [rzb,topology,rzline,segrzb]=nodegen(segments,see,varargin)
 %                sizes of the neighboring segments, or else the default
 %                mesh density if there is no neighboring segment. This
 %                feature is only implemented for straight segments.
-%     -Bézier segment: the four coordinates in the first four columns of 
-%                "segments" become the four points of a cubic Bézier curve,
+%     -Bï¿½zier segment: the four coordinates in the first four columns of 
+%                "segments" become the four points of a cubic Bï¿½zier curve,
 %                p0, p1, p2 and p3 if they are given as complex numbers with
 %                real and imaginary parts corresponding to rho and z
 %                components. References:
 %                *Numerical Recipes:Prautzsch, H., Boehm, W., and Paluszny, M. 2002
-%                *Bézier and B-Spline Techniques (Berlin:Springer)
+%                *Bï¿½zier and B-Spline Techniques (Berlin:Springer)
 
-% -Vicente Cutanda Henríquez 1995 
+% -Vicente Cutanda Henrï¿½quez 1995 
 % -Translation from Pascal to Matlab: Johan Gramtorp 2000
-% -Vicente Cutanda Henríquez: help text 2004, inline function segments
+% -Vicente Cutanda Henrï¿½quez: help text 2004, inline function segments
 % 2007, rzline 2010.
-% Vicente Cutanda Henríquez, rzline addition, 04-2011
-% Vicente Cutanda Henríquez, varying element length, Bézier segments, 06-2011
-% Vicente Cutanda Henríquez, objects not attached to the z-axis, 05-2014
-% Vicente Cutanda Henríquez, Output corresponding segment numbers. Common
+% Vicente Cutanda Henrï¿½quez, rzline addition, 04-2011
+% Vicente Cutanda Henrï¿½quez, varying element length, Bï¿½zier segments, 06-2011
+% Vicente Cutanda Henrï¿½quez, objects not attached to the z-axis, 05-2014
+% Vicente Cutanda Henrï¿½quez, Output corresponding segment numbers. Common
 % function in 2D and Axi BEM. 10-2014.
  
 
@@ -129,15 +129,15 @@ for m=m_re';	% For every segment with uniform element length
     radius=segments(m,6);			% radius=0 for straight segments
     meshdens=segments(m,7);			% element density in elements per meter
     
-    if ~isreal([rho_start z_start rho_end z_end]) % Bézier curve with extra points as imaginary parts
-        % Bézier curves:
+    if ~isreal([rho_start z_start rho_end z_end]) % Bï¿½zier curve with extra points as imaginary parts
+        % Bï¿½zier curves:
         % Ref from Numerical Recipes:Prautzsch, H., Boehm, W., and Paluszny, M. 2002
-        % Bézier and B-Spline Techniques (Berlin:Springer)
+        % Bï¿½zier and B-Spline Techniques (Berlin:Springer)
 
         p0=rho_start;p1=z_start;p2=rho_end;p3=z_end; % in this case the four coordinates become four points
         t=linspace(0,1,1e6+1)'; % number of function values to evaluate segment length
 
-        % Cubic Bézier curve, parametric form
+        % Cubic Bï¿½zier curve, parametric form
         B=(1-t).^3*p0+3*(1-t).^2.*t*p1+3*(1-t).*t.^2*p2+t.^3*p3;
 
         table=[real(B) imag(B)]; % rho and z coordinates
@@ -444,7 +444,7 @@ if see(1)=='y' || see(1)=='Y'
             switch mod(segrzb(topology(tt,2))-1,5)+1
                 case 1, colel='r'; case 2, colel='b'; case 3, colel='g'; case 4, colel='y'; case 5, colel='m';
             end
-            plot(rzb(topology(tt,1:3),1),rzb(topology(tt,1:3),2),[colel ':']);
+            plot(rzb(topology(tt,1:3),1),rzb(topology(tt,1:3),2),[colel ':']); 
             hold on;
             plot(rzb(topology(tt,[1 3]),1),rzb(topology(tt,[1 3]),2),[colel 'o']);
             plot(rzb(topology(tt,2),1),rzb(topology(tt,2),2),[colel '+']);
