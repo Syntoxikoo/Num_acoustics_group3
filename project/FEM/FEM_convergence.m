@@ -138,7 +138,7 @@ for ii = 1:length(precis)
     Y{ii} = y;
     p_arr{ii} = p;
 end
-
+    save("project/data/FEM_conv_unflanged.mat","fr","model","Mfem","p_arr","Node_idx_true","x_true","y_true")
 %% get directivity pattern
 
 load("FEM_groundTruth")

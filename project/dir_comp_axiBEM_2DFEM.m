@@ -66,7 +66,7 @@ for ii = 1:length(fr)
     theta = cell2mat(theta_arr(ii));
     theta_full = [theta; pi + theta];
     p = cell2mat(p_fieldF_arr(ii));
-    spl_values = 20*log10(abs(p(1:length(cell2mat(rr_arr(ii)))))/20e-6);
+    spl_values = 20*log10(abs(p(1:length(cell2mat(theta_arr(ii)))))/20e-6);
     Nspl = spl_values - max(spl_values);
     spl_full = [Nspl; flip(Nspl)];
     Leg(1)=polarplot(theta_full, spl_full, 'LineWidth', 1, 'DisplayName', [num2str(fr(ii)) ' Hz'],Color=corder(ii,:));
@@ -79,7 +79,7 @@ for ii = 1:length(fr)
     theta = cell2mat(theta_arr(ii));
     theta_full = [theta; pi + theta];
     p = cell2mat(p_fieldF_arr(ii));
-    spl_values = 20*log10(abs(p(1:length(cell2mat(rr_arr(ii)))))/20e-6);
+    spl_values = 20*log10(abs(p(1:length(cell2mat(theta_arr(ii)))))/20e-6);
     Nspl = spl_values - max(spl_values);
     spl_full = [Nspl; flip(Nspl)];
     Leg(2) = polarplot(theta_full, spl_full, 'LineWidth', 1,"LineStyle", "--",'DisplayName', [num2str(fr(ii)) ' Hz'],Color=corder(ii,:));
