@@ -37,3 +37,4 @@ semilogy(el_wl_vec,error_UF,'DisplayName','unflanged');
 hold off;
 grid on;
 legend;
+saveas(gcf, "project/figures/bem_conv1.svg")
