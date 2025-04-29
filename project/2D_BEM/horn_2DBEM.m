@@ -192,4 +192,4 @@ thetalim([-180 180]);
 legend('Location', 'best');
 hold off;
 
-save("data/2DBEM_HORN","p_fieldHORN","theta","fr","rr");
+save("2D_BEM/data/2DBEM_HORN","p_fieldHORN","theta","fr","rr");

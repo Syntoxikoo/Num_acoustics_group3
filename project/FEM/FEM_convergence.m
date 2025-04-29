@@ -1,10 +1,11 @@
 clear; close all; 
 
 % Problem Definition
-
-% Constants
-rho=1.21;
-c0=343;
+% Ambient conditions
+pa = 101325;         % Static pressure (Pa)
+t = 20;              % Temperature (ºC)
+Hr = 50;             % Relative humidity (%)
+[rho,c0,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
 fr = 8000; 
 omega = 2 * pi * fr;
 k = omega/c0;
