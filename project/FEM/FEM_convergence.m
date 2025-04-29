@@ -138,7 +138,7 @@ for ii = 1:length(precis)
     Y{ii} = y;
     p_arr{ii} = p;
 end
-    save("project/data/FEM_conv_unflanged.mat","fr","model","Mfem","p_arr","Node_idx_true","x_true","y_true")
+    save("project/data/FEM_conv_unflanged.mat","fr","model","Mfem","p_arr","Node_idx","X","Y")
 %% get directivity pattern
 
 load("FEM_groundTruth")
@@ -158,4 +158,4 @@ title('Convergence of FEM (analytical is \lambda /10)' )
 xlabel('Number of elements'); ylabel('Relative error')
 grid
 
-saveas(gcf, "convergenceFEM1.svg")
+saveas(gcf, "project/figures/convergenceFEM1.svg")
