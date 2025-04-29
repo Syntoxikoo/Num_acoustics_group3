@@ -84,7 +84,7 @@ else
     B=zeros(lndu+nchiefp,size(BCnodeB,1));
 end
 
-disp([' 2D BEM calculation, ' num2str(lndu+nchiefp) ' points, k = ' num2str(k)])
+% disp([' 2D BEM calculation, ' num2str(lndu+nchiefp) ' points, k = ' num2str(k)])
 
 % coefficient matrix calculation
 for jj=1:lndu+nchiefp

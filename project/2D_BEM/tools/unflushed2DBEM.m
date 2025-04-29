@@ -1,10 +1,18 @@
-function [fr,p_fieldUF,rr,theta] = unflushed2DBEM(el_wl,fr)
+function [fr,p_fieldUF,rr,fp_theta] = unflushed2DBEM(el_wl,fr,fp_theta)
+% el_wl = element mesh density
+% fr = frequency
+% fp_theta = field point position in degree
+
 % 2D BEM unflushed
 addpath(genpath("2DBEM"))
 
 
 % -------------------- INPUT DATA ---------------------
  
+% calculate radiant
+fp_theta = fp_theta*pi/180;
+
+
 % Ambient conditions
 pa = 101325;         % Static pressure (Pa)
 t = 20;              % Temperature (ºC)
@@ -16,16 +24,16 @@ Hr = 50;             % Relative humidity (%)
 % fr = [1000 2000 4000 8000];
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 %el_wl=6*max(fr)/c;   % Minimum mesh density as a function of the highest frequency
-espac=1/el_wl;       % Spacing of field points
-fp_spc_deg = 1;      % Field point spacing in degree for the arc
+% espac=1/el_wl;       % Spacing of field points
+% fp_spc_deg = 1;      % Field point spacing in degree for the arc
 kp=2*pi*fr/c;        % Wavenumber (1/m)
 betaP = NaN;           % normalised admittance of the plane, at k.
 
 
 % Field points parameters
-thetamax=2*pi;        % Maximum angle for representation
+%thetamax=2*pi;        % Maximum angle for representation
 Rmed=1;               % Radius of the arc of field points
-beta=0; 
+%beta=0; 
 
 
 
@@ -59,7 +67,7 @@ xyb_chief= [xyb_chief_left; xyb_chief_right];
 % Excitation: Tweeter membrane displacement
 nn1=find(xyb(:,1)>=-piston_rad & xyb(:,1)<=piston_rad & xyb(:,2)>=-5e-3-eps-pist_depth & xyb(:,2)<= 5e-3-eps-pist_depth);
 
-%plot(xyb(nn1,1),xyb(nn1,2), "^b")
+% plot(xyb(nn1,1),xyb(nn1,2), "^b")
 
 % assign velocity vector
 vn=zeros(M,1); vn(nn1)=vampl* 1e-3;
@@ -69,21 +77,22 @@ vn=zeros(M,1); vn(nn1)=vampl* 1e-3;
 
 % Definition of field points
 % field points on the arc
-theta=(0:fp_spc_deg*pi/180:thetamax)';rr=theta*Rmed;
-fpxyC=[Rmed*sin(theta) Rmed*cos(theta)];
+% fp_theta=(0:fp_spc_deg*pi/180:thetamax)';
+rr=fp_theta*Rmed;
+fpxyC=[Rmed*sin(fp_theta) Rmed*cos(fp_theta)];
 % field points on the radial direction
-rfp=(Rmed*1.1:-espac:Rmed*0.9)';
-fpxyR=[zeros(length(rfp),1) rfp];
-fpxy=[fpxyC ; fpxyR];
+%rfp=(Rmed*1.1:-espac:Rmed*0.9)';
+%fpxyR=[zeros(length(rfp),1) rfp];
+fpxy=fpxyC;%[fpxyC ; fpxyR];
 
 % test figures showing velocity: z-component and normal velocity, and field points
 
-%plot(fpxy(:,1),fpxy(:,2),'g+', DisplayName="Field points");
-xlim([-1.2 1.2]);
-ylim([-1.2 1.2]);
+% plot(fpxy(:,1),fpxy(:,2),'b*', DisplayName="Field points");
+% xlim([-1.2 1.2]);
+% ylim([-1.2 1.2]);
 
 %normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry figure
-% quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
+%quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
 
 %%
 
@@ -91,10 +100,10 @@ p_fieldUF = zeros(length(fpxy),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
-    disp(['Calculating f= ' num2str(fr(ii)) ' Hz'])
+    %disp(['Calculating f= ' num2str(fr(ii)) ' Hz'])
     [A,B]=bem2d(xyb,topology,kp(ii),betaP,xyb_chief);
     
-    disp(['Condition numbers, A: ' num2str(cond(A)) ' , B: ' num2str(cond(B))])
+    %disp(['Condition numbers, A: ' num2str(cond(A)) ' , B: ' num2str(cond(B))])
     
     % Pressure on the surface
     B=1i*kp(ii)*rho*c*B;

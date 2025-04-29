@@ -73,7 +73,7 @@ else
     Bp=zeros(np,size(BCnodeB,1));
 end
 
-disp([' 2D BEM field point calculation, ' num2str(np) ' points, k = ' num2str(k)])
+% disp([' 2D BEM field point calculation, ' num2str(np) ' points, k = ' num2str(k)])
 
 % coefficient matrix calculation
 for jj=1:np
