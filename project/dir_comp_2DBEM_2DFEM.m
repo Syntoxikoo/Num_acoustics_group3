@@ -9,7 +9,7 @@ Nleg = 1;
 height = get_height() * heightScale; 
 fig = figure("Position", [0, 0, columnwidth, height], "Units", "points");
 tiled = tiledlayout(nrows, ncols, "TileSpacing", "tight", "Padding", "loose");
-corder = colororder;
+corder = ["#181748","#810100","#6C6B8A","#AB6665"];
 
 load("Result_FEM_unflushed.mat")
 
@@ -39,7 +39,7 @@ for ii =1: length(fr)
     p = cell2mat(p_arr(ii));
     spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
     Nspl = spl_values - max(spl_values);
-    polarplot(theta-pi/2, Nspl, 'LineWidth', 1,"LineStyle", "--","Color",corder(ii,:),'HandleVisibility', 'off');
+    polarplot(theta-pi/2, Nspl, 'LineWidth', 1,"LineStyle", "--","Color",corder(ii),'HandleVisibility', 'off');
 
     hold on;
 end
@@ -82,7 +82,7 @@ for ii = 1:length(fr)
     spl_values = 20*log10(abs(p(1:length(rr)))/20e-6);
     Nspl = spl_values - max(spl_values);
     
-    Leg(2) = polarplot(theta, Nspl, 'LineWidth', 1,"LineStyle", "--",'DisplayName', [num2str(fr(ii)) ' Hz'],Color=corder(ii,:));
+    Leg(2) = polarplot(theta, Nspl, 'LineWidth', 1,"LineStyle", "--",Color=corder(ii));
 
     hold on;
 end
