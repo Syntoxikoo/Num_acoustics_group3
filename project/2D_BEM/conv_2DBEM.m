@@ -15,18 +15,22 @@ fp_theta = [33;55;78;135];
 % fp_theta = fp_theta';
 % calculate ground truth
 fr = 2000;
-el_wl=400; %20*fr/c;
+el_wl=300; %20*fr/c;
 [fr,GT_F,rr,theta] = flushed2DBEM(el_wl,fr,fp_theta);
 [~,GT_UF,~,~] = unflushed2DBEM(el_wl,fr,fp_theta);
 %save("data/2DBEM_GT.mat","theta","rr","GT_UF","fr","GT_F");
 % load("data/2DBEM_GT.mat");
 %% calculate convergence 
-el_wl_vec = 1:20:400;
+el_wl_vec = 1:10:300;
 %el_wl_vec=el_wl_vec*fr/c;
 error_F = zeros(2,length(el_wl_vec));
 error_UF = zeros(2,length(el_wl_vec));
 count = 1:1:length(el_wl_vec);
 for intI = 1:length(el_wl_vec)
+
+    % counter
+    disp(['Simulation ' num2str(count(intI)) ' of ' num2str(count(end))]);
+
     [~,F,~,~] = flushed2DBEM(el_wl_vec(intI),fr,fp_theta);
     [~,UF,~,~] = unflushed2DBEM(el_wl_vec(intI),fr,fp_theta);
     close all;
@@ -39,15 +43,15 @@ for intI = 1:length(el_wl_vec)
 
     % error_F(intI) = sum(abs(GT_F-F).^2./abs(GT_F).^2,1);
     % error_UF(intI) = sum(abs(GT_UF - UF).^2./abs(GT_UF).^2,1);
-    disp(['Simulation ' num2str(count(intI)) ' of ' num2str(count(end))]);
+    
 end
 close all;
 %%
 
-plot(el_wl_vec,error_F(1,:),'DisplayName','flanged');
+semilogy(el_wl_vec,error_F(1,:),'DisplayName','flanged');
 hold on;
-plot(el_wl_vec,error_UF(1,:),'DisplayName','unflanged');
+semilogy(el_wl_vec,error_UF(1,:),'DisplayName','unflanged');
 hold off;
 grid on;
 legend;
-saveas(gcf, "project/figures/bem_conv1.svg")
+%saveas(gcf, "project/figures/bem_conv1.svg")

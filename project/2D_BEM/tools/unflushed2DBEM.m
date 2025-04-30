@@ -45,14 +45,14 @@ baffle_rad = 0.3;
 baffle_z = 0;
 thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-segments=[-baffle_rad baffle_z -piston_rad baffle_z 5 0 el_wl;
-          -piston_rad baffle_z -piston_rad -pist_depth 5 0 el_wl;
-          -piston_rad -pist_depth piston_rad -pist_depth 5 0 el_wl;
-          piston_rad -pist_depth piston_rad baffle_z 5 0 el_wl;
-          piston_rad baffle_z baffle_rad baffle_z 5 0 el_wl;
-          baffle_rad baffle_z baffle_rad (baffle_z - thickness) 5 0 el_wl;
-          baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 5 0 el_wl
-          -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 5 0 el_wl];
+segments=[-baffle_rad baffle_z -piston_rad baffle_z 1 0 el_wl;
+          -piston_rad baffle_z -piston_rad -pist_depth 1 0 el_wl;
+          -piston_rad -pist_depth piston_rad -pist_depth 1 0 el_wl;
+          piston_rad -pist_depth piston_rad baffle_z 1 0 el_wl;
+          piston_rad baffle_z baffle_rad baffle_z 1 0 el_wl;
+          baffle_rad baffle_z baffle_rad (baffle_z - thickness) 1 0 el_wl;
+          baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 1 0 el_wl
+          -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 1 0 el_wl];
 
 [xyb,topology]=nodegen(segments,'n');         % compute nodes and elements
 M=size(xyb,1);N=size(topology,1);             % M nodes, N elements
