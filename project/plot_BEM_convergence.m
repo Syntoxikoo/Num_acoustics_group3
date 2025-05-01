@@ -1,6 +1,6 @@
 % load data
 clear;
-load("2D_BEM/data/Conv_try13.mat");
+load("2D_BEM/data/Conv_try14_eliot_zoom.mat");
 addpath plot_tools/
 
 % calculate x axis vector
@@ -24,10 +24,11 @@ Leg(2) = semilogy(x_vec, error_UF(1,:), 'LineWidth', 1.5,Color="#810100");
 
 xlabel("Mesh density in elements per wavelength")
 ylabel("mean error (pa)")
-ylim([0 12])
+ylim([1e-2 12])
+xlim([1 20])
 leg1 = legend(Leg,"flushed", "Recessed",NumColumns=2);
 leg1.Layout.Tile = 'north';
 title("Mesh convergence for BEM")
 hold off
-%saveas(gcf,'figures/BEM_convergence.svg')
+saveas(gcf,'figures/BEM_convergence.svg')
 
