@@ -48,9 +48,9 @@ end
 close all;
 %%
 
-semilogy(el_wl_vec,error_F(1,:),'DisplayName','flanged');
+plot(el_wl_vec,error_F(1,:),'DisplayName','flanged');
 hold on;
-semilogy(el_wl_vec,error_UF(1,:),'DisplayName','unflanged');
+plot(el_wl_vec,error_UF(1,:),'DisplayName','unflanged');
 hold off;
 grid on;
 legend;
