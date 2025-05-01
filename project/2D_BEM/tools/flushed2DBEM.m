@@ -59,7 +59,7 @@ xyb_chief= [xyb_chief_left; xyb_chief_right];
 
 
 % Excitation: Tweeter membrane displacement
-nn1=find(xyb(:,1)>=-piston_rad & xyb(:,1)<=piston_rad & xyb(:,2)>=-5e-3-eps & xyb(:,2)<= 5e-3-eps);
+nn1=find(xyb(:,1)>=-piston_rad-1e-5 & xyb(:,1)<=piston_rad+1e-5 & xyb(:,2)>=-1e-5 & xyb(:,2)<= 1e-5);
 
 % plot(xyb(nn1,1),xyb(nn1,2), "^b")
 
@@ -79,14 +79,6 @@ fpxyC=[Rmed*sin(fp_theta) Rmed*cos(fp_theta)];
 % fpxyR=[zeros(length(rfp),1) rfp];
 fpxy= fpxyC;%[fpxyC ; fpxyR];
 
-% test figures showing velocity: z-component and normal velocity, and field points
-
-% plot(fpxy(:,1),fpxy(:,2),'b*', DisplayName="Field points");
-% xlim([-1.2 1.2]);
-% ylim([-1.2 1.2]);
-
-% normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry figure
-%quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
 
 %%
 
