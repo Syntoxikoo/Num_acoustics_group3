@@ -21,4 +21,4 @@ leg1 = legend(Leg, "Recessed","Recessed with bevel",NumColumns=2);
 leg1.Layout.Tile = 'north';
 title("Effect of change in baffle shape on the frequency response at " +rad2deg(theta)+"° from the axis")
 hold off
-saveas(gcf,'project/figures/sensitivity_study_BEM2.svg')
+saveas(gcf,'project/figures/sensitivity_study_BEM3.svg')

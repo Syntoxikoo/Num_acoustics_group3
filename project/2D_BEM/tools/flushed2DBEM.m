@@ -59,7 +59,7 @@ xyb_chief= [xyb_chief_left; xyb_chief_right];
 
 
 % Excitation: Tweeter membrane displacement
-nn1=find(xyb(:,1)>=-piston_rad-1e-5 & xyb(:,1)<=piston_rad+1e-5 & xyb(:,2)>=-1e-5-eps & xyb(:,2)<= 1e-5-eps);
+nn1=find(xyb(:,1)>=-piston_rad-1e-5 & xyb(:,1)<=piston_rad+1e-5 & xyb(:,2)>=-1e-5 & xyb(:,2)<= 1e-5);
 
 % plot(xyb(nn1,1),xyb(nn1,2), "^b")
 

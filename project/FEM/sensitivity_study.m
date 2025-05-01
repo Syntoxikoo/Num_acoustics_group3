@@ -10,7 +10,7 @@ Hr = 50;             % Relative humidity (%)
  
 % General parameters:
 
-fr =  linspace(1500,4000,100);
+fr =  linspace(1500,4000,500);
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 betaP = NaN;           % normalised admittance of the plane, at k.
 % Field points parameters
@@ -127,7 +127,7 @@ for ii = 1: length(fr)
     % solve the pressure on the field points
     pF_2(ii)=(Ap*ps+1i*kp*rho*c0*Bp*vn)./CConst;
 end
-save("sensitivity_study_recessed_vs_bevelcurve","fr","pF_1","pF_2","theta","fpxy")
+save("sensitivity_study_recessed_vs_bevelcurve2","fr","pF_1","pF_2","theta","fpxy")
 %% 
 plot_sensitivity_study_Bem
 
