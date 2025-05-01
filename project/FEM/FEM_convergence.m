@@ -6,7 +6,7 @@ pa = 101325;         % Static pressure (Pa)
 t = 20;              % Temperature (ºC)
 Hr = 50;             % Relative humidity (%)
 [rho,c0,cf,CpCv,nu,alfa]=amb2prop(pa,t,Hr,1000); 
-fr = 8000; 
+fr = 2000; 
 omega = 2 * pi * fr;
 k = omega/c0;
 U0 = 1/(rho*c0);
@@ -140,11 +140,22 @@ for ii = 1:length(precis)
     p_arr{ii} = p;
 end
     save("project/data/FEM_conv_unflanged.mat","fr","model","Mfem","p_arr","Node_idx","X","Y")
-%% get directivity pattern
+%% conv error
 
-load("FEM_groundTruth")
+load("FEM_groundTruth.mat")
+F1 = scatteredInterpolant(x_true.',y_true.',p_true);
+theta = atan2(y_,x);
+theta(theta < 0) = theta(theta < 0) + 2*pi;
+[theta,sortIdx] = sort(theta);
+
+angles = [33, 55, 78, 135];
+for ii= 1:length(angles)
+    find()
+
+
+load("FEM_groundTruthrec.mat")
+F2 = scatteredInterpolant(x_true.',y_true.',p_true);
 err = zeros(1, length(precis));
-F = scatteredInterpolant(x_true.',y_true.',p_true);
 for ii = 1:length(err)
     true_p_interp = F(cell2mat(X(ii)),cell2mat(Y(ii)));
 
