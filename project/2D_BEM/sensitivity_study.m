@@ -10,7 +10,7 @@ Hr = 50;             % Relative humidity (%)
  
 % General parameters:
 
-fr =  linspace(1500,4000,500);
+fr =  linspace(1500,4000,100);
 vampl=1;             % Amplitude of the diaphragm movement (m/s) 
 betaP = NaN;           % normalised admittance of the plane, at k.
 % Field points parameters
@@ -95,23 +95,23 @@ for ii = 1: length(fr)
     baffle_y = 0;
     thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-    segments=[-baffle_rad baffle_y -2*piston_rad baffle_y 5 0 el_wl;
-    -2*piston_rad baffle_y -piston_rad -pist_depth 5 0.1 el_wl;
-    -piston_rad -pist_depth piston_rad -pist_depth 5 0 el_wl;
-    piston_rad -pist_depth 2*piston_rad baffle_y 5 0.1 el_wl;
-    2*piston_rad baffle_y baffle_rad baffle_y 5 0 el_wl;
-    baffle_rad baffle_y baffle_rad (baffle_y - thickness) 5 0 el_wl;
-    baffle_rad (baffle_y-thickness) -baffle_rad (baffle_y-thickness) 5 0 el_wl
-    -baffle_rad (baffle_y-thickness) -baffle_rad baffle_y 5 0 el_wl];
+    segments=[-baffle_rad baffle_y -2*piston_rad baffle_y 1 0 el_wl;
+    -2*piston_rad baffle_y -piston_rad -pist_depth 1 0.1 el_wl;
+    -piston_rad -pist_depth piston_rad -pist_depth 1 0 el_wl;
+    piston_rad -pist_depth 2*piston_rad baffle_y 1 0.1 el_wl;
+    2*piston_rad baffle_y baffle_rad baffle_y 1 0 el_wl;
+    baffle_rad baffle_y baffle_rad (baffle_y - thickness) 1 0 el_wl;
+    baffle_rad (baffle_y-thickness) -baffle_rad (baffle_y-thickness) 1 0 el_wl
+    -baffle_rad (baffle_y-thickness) -baffle_rad baffle_y 1 0 el_wl];
     
     [xyb2,topology2]=nodegen(segments,'n');         % compute nodes and elements
     M=size(xyb2,1);N=size(topology2,1);             % M nodes, N elementsq
 
     % Excitation: Tweeter membrane displacement
-    nn1=find(xyb2(:,1)>=-piston_rad-1e-5 & xyb2(:,1)<=piston_rad + 1e-5 & xyb2(:,2)>= -1e-5-pist_depth & xyb2(:,2)<= 1e-5-pist_depth);
+    nn2=find(xyb2(:,1)>=-piston_rad-1e-5 & xyb2(:,1)<=piston_rad + 1e-5 & xyb2(:,2)>= -1e-5-pist_depth & xyb2(:,2)<= 1e-5-pist_depth);
 
     % assign velocity vector
-    vn=zeros(M,1); vn(nn)=vampl* 1e-3;
+    vn=zeros(M,1); vn(nn2)=vampl* 1e-3;
 
 
     % --------- Solving -----------

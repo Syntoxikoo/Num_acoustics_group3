@@ -51,7 +51,7 @@ for ii = 1: length(fr)
             piston_rad -pist_depth piston_rad baffle_z 1 0 el_wl;
             piston_rad baffle_z baffle_rad baffle_z 1 0 el_wl;
             baffle_rad baffle_z baffle_rad (baffle_z - thickness) 1 0 el_wl;
-            baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 5 0 el_wl
+            baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 1 0 el_wl
             -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 1 0 el_wl];
 
     [xyb,topology]=nodegen(segments,'n');         % compute nodes and elements
@@ -104,7 +104,7 @@ for ii = 1: length(fr)
     segments=[-baffle_rad baffle_y -2*piston_rad baffle_y 1 0 el_wl;
         -2*piston_rad baffle_y -piston_rad -pist_depth 1 0.1 el_wl;
         -piston_rad -pist_depth piston_rad -pist_depth 1 0 el_wl;
-        piston_rad -pist_depth 2*piston_rad baffle_y 5 0.1 el_wl;
+        piston_rad -pist_depth 2*piston_rad baffle_y 1 0.1 el_wl;
         2*piston_rad baffle_y baffle_rad baffle_y 1 0 el_wl;
         baffle_rad baffle_y baffle_rad (baffle_y - thickness) 1 0 el_wl;
         baffle_rad (baffle_y-thickness) -baffle_rad (baffle_y-thickness) 1 0 el_wl
