@@ -12,22 +12,22 @@ tiled = tiledlayout(nrows, ncols, "TileSpacing", "tight", "Padding", "loose");
 corder = ["#181748","#810100","#575579","#7F7F7F"];
 
 load("Result_FEM_unflushed.mat")
-
 tile1 = nexttile;
 
 for ii =1: length(fr)
-
+    
     Node_idx = cell2mat(N_arr(ii));
-
+    
     theta = cell2mat(the_arr(ii));
     sortIdx = cell2mat(sor_arr(ii));
     p = cell2mat(p_arr(ii));
     spl_values = 20*log10(abs(p(Node_idx(sortIdx)))/20e-6);
     Nspl = spl_values - max(spl_values);
     leg1(ii) = polarplot(theta-pi/2, Nspl, 'LineWidth', 1.5, 'DisplayName', [num2str(fr(ii)) ' Hz'],Color=corder(ii));
-
+    
     hold on;
 end
+
 
 load("Result_FEM_flushed.mat")
 for ii =1: length(fr)
