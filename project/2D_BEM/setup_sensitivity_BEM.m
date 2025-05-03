@@ -21,7 +21,7 @@ xlim([-1.2 1.2]);
 ylim([-1.2 1.2]);
 
 grid on ; hold off
-title( "Recessed loudspeaker geometry")
+title( "Recessed 10 cm")
 
 
 tile2 = nexttile;
@@ -38,14 +38,14 @@ ylim([-1.2 1.2]);
 
 xlabel(tiled, "x (m)")
 ylabel(tiled, "y (m)")
-title( "Recessed + bevel geometry")
+title( "Recessed 15 cm")
 grid on;
 hold off;
 
 leg = legend(Leg, {"Meshed body", "Observation point"}, 'NumColumns', 3); 
 leg.Layout.Tile = 'north'; 
 
-saveas(gcf,'project/figures/geometry_sensitivity_study.svg')
+saveas(gcf,'figures/geometry_sensitivity_study_recessing.svg')
 
 
 

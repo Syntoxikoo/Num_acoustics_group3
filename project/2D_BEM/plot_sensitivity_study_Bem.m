@@ -15,10 +15,10 @@ Leg(1) = semilogx(fr, 20 * log10(abs(pF_1)/2e-5), 'LineWidth', 1.5,Color="#18174
 Leg(2) = semilogx(fr, 20 * log10(abs(pF_2)/2e-5), 'LineWidth', 1.5,Color="#810100");
 
 xlabel("Frequency (Hz)")
-ylabel("Sound pressure level (dB re 20 \mu Pa)")
+ylabel("Level (dB re 20 \mu Pa)")
 ylim([40 80])
-leg1 = legend(Leg, "Recessed","Recessed with bevel",NumColumns=2);
+leg1 = legend(Leg, "10 cm Recessed","15 cm Recessed",NumColumns=2);
 leg1.Layout.Tile = 'north';
-title("Effect of change in baffle shape on the frequency response at " +rad2deg(theta)+"° from the axis")
+title("Effect of change in piston depth " +rad2deg(theta)+"° from the axis")
 hold off
-saveas(gcf,'project/figures/sensitivity_study_BEM3.svg')
+saveas(gcf,'figures/sensitivity_study_BEM_recessing.svg')
