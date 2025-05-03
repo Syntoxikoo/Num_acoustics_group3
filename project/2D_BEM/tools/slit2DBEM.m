@@ -1,4 +1,4 @@
-function [fr,p_fieldUF,rr,fp_theta,xyb,topology] = unflushed2DBEM(el_wl,fr,fp_theta)
+function [fr,p_field,rr,fp_theta,xyb,topology] = slit2DBEM(el_wl,fr,fp_theta)
 % el_wl = element mesh density
 % fr = frequency
 % fp_theta = field point position in degree
@@ -43,16 +43,17 @@ pist_depth = 0.1;
 piston_ctr = 0;
 baffle_rad = 0.3;
 baffle_z = 0;
+baffle_y = 0;
 thickness = 0.3; % changing thickness seems to have no effect since interior pb is omitted
 
-segments=[-baffle_rad baffle_z -piston_rad baffle_z 1 0 el_wl;
-          -piston_rad baffle_z -piston_rad -pist_depth 1 0 el_wl;
+segments=[-baffle_rad baffle_y -piston_rad*0.25 baffle_y 1 0 el_wl;
+          -piston_rad*0.25 baffle_y -piston_rad -pist_depth 1 -0.1 el_wl;
           -piston_rad -pist_depth piston_rad -pist_depth 1 0 el_wl;
-          piston_rad -pist_depth piston_rad baffle_z 1 0 el_wl;
-          piston_rad baffle_z baffle_rad baffle_z 1 0 el_wl;
-          baffle_rad baffle_z baffle_rad (baffle_z - thickness) 1 0 el_wl;
-          baffle_rad (baffle_z-thickness) -baffle_rad (baffle_z-thickness) 1 0 el_wl
-          -baffle_rad (baffle_z-thickness) -baffle_rad baffle_z 1 0 el_wl];
+          piston_rad -pist_depth piston_rad*0.25 baffle_y 1 -0.1 el_wl;
+          piston_rad*0.25 baffle_y baffle_rad baffle_y 1 0 el_wl;
+          baffle_rad baffle_y baffle_rad (baffle_y - thickness) 1 0 el_wl;
+          baffle_rad (baffle_y-thickness) -baffle_rad (baffle_y-thickness) 1 0 el_wl
+          -baffle_rad (baffle_y-thickness) -baffle_rad baffle_y 1 0 el_wl];
 
 [xyb,topology]=nodegen(segments,'y');         % compute nodes and elements
 M=size(xyb,1);N=size(topology,1);             % M nodes, N elements
@@ -91,12 +92,12 @@ plot(fpxy(:,1),fpxy(:,2),'b*', DisplayName="Field points");
 xlim([-1.2 1.2]);
 ylim([-1.2 1.2]);
 
-% %normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry figure
-% %quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
+% normplot=mean(mean(abs(diff(xyb(:,1:2))))); % quiver on the previous geometry figure
+% quiver(rzb(:,1),rzb(:,2),nvect(:,1).*vn*normplot,nvect(:,2)*normplot.*vn,0,'-r');
 
 %%
 
-p_fieldUF = zeros(length(fpxy),length(fr));
+p_field = zeros(length(fpxy),length(fr));
 for ii= 1:length(fr)
 % CALCULATION OF RESULTS
     % BEM matrices calculation
@@ -109,11 +110,10 @@ for ii= 1:length(fr)
     B=1i*kp(ii)*rho*c*B;
     ps=A\(-B*vn); % Solve the system
     clear A B
-   
 
     % calculate corresponding rows of coefficients
     [Ap,Bp,CConst]=fieldpoints(xyb,topology,kp(ii),betaP,fpxy);
     % solve the pressure on the field points
-    p_fieldUF(:,ii)=(Ap*ps+1i*kp(ii)*rho*c*Bp*vn)./CConst;
+    p_field(:,ii)=(Ap*ps+1i*kp(ii)*rho*c*Bp*vn)./CConst;
 end
 end

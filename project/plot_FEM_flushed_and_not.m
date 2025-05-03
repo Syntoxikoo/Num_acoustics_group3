@@ -1,4 +1,4 @@
-
+addpath data
 load("Result_FEM_unflushed.mat")
 
 figure(1)
