@@ -8,7 +8,7 @@ Hr = 50;             % Relative humidity (%)
 
 % Constants
 
-fr = 2000; 
+fr = 1850; 
 omega = 2 * pi * fr;
 k = omega/c0;
 U0 = 1e-3 *sqrt(2);
@@ -22,21 +22,24 @@ f =0;
 
 % The overall shape could be modified from the "FEM_model_piston.m" inside
 % the geometry folder.
-% save("project/FEM/geometry/flushed_piston_rounded.mat","gd","ns","sf"); 
-load("project/FEM/geometry/flushed_pistonv2.mat")
-flanged_depth = [0.0,0.1];
-
-p_arr = cell(1, length(flanged_depth));
-X = cell(1, length(flanged_depth));
-Y = cell(1, length(flanged_depth));
-
-for ii= 1:length(flanged_depth)
-    gd(7:8,3) =  - flanged_depth(ii);
-
-    char(ns)
+% save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
+load("project/FEM/geometry/flushed_piston_rounded.mat")
 
 
-    g = decsg(gd,sf,ns); % Create the geometry.
+p_arr = cell(1, 2);
+X = cell(1, 2);
+Y = cell(1, 2);
+
+for ii= 1:2
+    if ii ==1
+        load("project/FEM/geometry/flushed_pistonv2.mat")
+        gd(7:8,3) =  - 0.1;
+        [g,bt] = decsg(gd,sf,ns); % Create the geometry.
+    else
+        load("project/FEM/geometry/flushed_piston_rounded.mat")
+        [g,bt] = decsg(gd,sf,ns); % Create the geometry.
+        [g,bt] = csgdel(g,bt);
+    end
 
 
     numberOfPDE = 1; 
@@ -55,13 +58,13 @@ for ii= 1:length(flanged_depth)
 
 
     % Boundary condition
-    if flanged_depth(ii) == 0.0
-        EdgU0 = 3;
-        EdgB =  [1,2,4,5,6,7,8];
-        EdgO = (9:12);
-    else
+    if ii == 1
         EdgU0 = 1;
         EdgB =  (2:10);
+        EdgO = (11:14);
+    else
+        EdgU0 = 10;
+        EdgB =  [(1:9),15,16];
         EdgO = (11:14);
     end
 
@@ -112,7 +115,7 @@ for ii= 1:length(flanged_depth)
     end
 end
 
-save("project/data/Result_FEM_field.mat", "p_arr","X","Y", "model1","model2")
+save("project/data/Result_FEM_field3.mat", "p_arr","X","Y", "model1","model2","fr")
 
 customColormap = [
     24/255,  23/255,  72/255;

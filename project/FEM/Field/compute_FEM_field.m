@@ -22,7 +22,7 @@ f =0;
 
 % The overall shape could be modified from the "FEM_model_piston.m" inside
 % the geometry folder.
-% save("project/FEM/geometry/flushed_piston_rounded.mat","gd","ns","sf"); 
+% save("project/FEM/geometry/flushed_piston_10meterFF.mat","gd","ns","sf"); 
 load("project/FEM/geometry/flushed_pistonv2.mat")
 flanged_depth = [0.0,0.1];
 

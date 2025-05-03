@@ -67,18 +67,3 @@ close(v);
 
 
 
-
-% plot(xyb_chief(:,1),xyb_chief(:,2),"Color","black","Marker","square","Linestyle","none","MarkerSize", 5);
-% xlabel(tiled, "x (m)")
-% ylabel(tiled, "y (m)")
-% title( M_high + " nodes, "+ N_high +" elements, "+ Nfield_high + " Field p.")
-% grid on;
-% hold off;
-
-% leg = legend(Leg, {"Mesh body", "Field point", "Velocity"}, 'NumColumns', 3); 
-% leg.Layout.Tile = 'north'; 
-
-% saveas(gcf,'project/figures/mesh_size.svg')
-
-
-
